@@ -82,7 +82,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
             -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_DIR }} \
             -DWITH_PLAYER=OFF \
-            -DWITH_SYSTEM_GLEW=ON \
+            -DWITH_SYSTEM_GLEW=OFF \
             -DWITH_CYCLES=OFF \
             -DWITH_IMAGE_OPENEXR=OFF \
             -DWITH_CODEC_FFMPEG=OFF \
@@ -136,37 +136,25 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
-      - name: Setup vcpkg
+      - name: Setup vcpkg deps
         run: |
           if (-not (Test-Path "C:\vcpkg")) {
             git clone --depth=1 https://github.com/Microsoft/vcpkg.git C:\vcpkg
             C:\vcpkg\bootstrap-vcpkg.bat -disableMetrics
           }
-          C:\vcpkg\vcpkg.exe integrate install
-        shell: pwsh
-
-      - name: Install dependencies via vcpkg
-        run: |
           C:\vcpkg\vcpkg.exe install --triplet x64-windows `
-            zlib libpng libjpeg-turbo freetype glew `
-            boost-system boost-filesystem boost-thread boost-regex boost-locale boost-date-time `
-            openal-soft pthreads
+            zlib libpng libjpeg-turbo freetype glew pthreads openal-soft
         shell: pwsh
 
-      - name: Create pre-compiled libs structure
+      - name: Build libs directory for Blender
         run: |
           $VCPKG = "C:\vcpkg\installed\x64-windows"
           $LIB = "${{ github.workspace }}\lib\win64_vc15"
-          New-Item -ItemType Directory -Force -Path "$LIB\zlib\lib", "$LIB\png\lib", "$LIB\jpeg\lib", "$LIB\freetype\lib", "$LIB\glew\lib", "$LIB\boost\lib", "$LIB\pthreads\lib", "$LIB\openal\lib", "$LIB\python\lib"
-          # Copy headers
-          Copy-Item -Recurse "$VCPKG\include\*" "$LIB\zlib\include\" -ErrorAction SilentlyContinue
-          # Copy libs
-          Copy-Item "$VCPKG\lib\zlib.lib" "$LIB\zlib\lib\libz_st.lib"
-          Copy-Item "$VCPKG\lib\libpng16.lib" "$LIB\png\lib\"
-          Copy-Item "$VCPKG\lib\jpeg.lib" "$LIB\jpeg\lib\libjpeg.lib"
-          Copy-Item "$VCPKG\lib\freetype.lib" "$LIB\freetype\lib\freetype2ST.lib"
-          Copy-Item "$VCPKG\lib\glew32.lib" "$LIB\glew\lib\"
-          Write-Host "Pre-compiled lib structure created at $LIB"
+          # Build the expected directory structure with symlinks/junctions
+          New-Item -ItemType Directory -Force -Path "$LIB"
+          cmd /c mklink /J "$LIB\include" "$VCPKG\include"
+          cmd /c mklink /J "$LIB\lib" "$VCPKG\lib"
+          Write-Host "Lib directory linked to vcpkg at $LIB"
         shell: pwsh
 
       - name: Configure CMake
@@ -176,6 +164,10 @@ jobs:
           cmake ${{ env.SOURCE_DIR }} `
             -G "Visual Studio 17 2022" `
             -A x64 `
+            -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake `
+            -DLIBDIR="${{ github.workspace }}/lib/win64_vc15" `
+            -DWITH_WINDOWS_FIND_MODULES=ON `
+            -DPYTHON_VERSION=3.10 `
             -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} `
             -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_DIR }} `
             -DWITH_PLAYER=OFF `
