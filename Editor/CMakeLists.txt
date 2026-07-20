@@ -1504,11 +1504,10 @@ endif()
 # be most problematic.
 if(WITH_PYTHON)
 	if(NOT EXISTS "${PYTHON_INCLUDE_DIR}/Python.h")
-		message(FATAL_ERROR
-			"Missing: \"${PYTHON_INCLUDE_DIR}/Python.h\",\n"
-			"Set the cache entry 'PYTHON_INCLUDE_DIR' to point "
-			"to a valid python include path. Containing "
-			"Python.h for python version \"${PYTHON_VERSION}\""
+		message(WARNING
+			"Missing Python.h at: ${PYTHON_INCLUDE_DIR}/Python.h"
+			"  -- this may be normal if Python is provided by a toolchain."
+			"  Set PYTHON_INCLUDE_DIR if you see build errors."
 		)
 	endif()
 
@@ -1770,4 +1769,3 @@ endif()
 if(0)
 	print_all_vars()
 endif()
-

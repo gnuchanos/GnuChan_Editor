@@ -302,17 +302,22 @@ if(WITH_JACK)
 endif()
 
 if(WITH_PYTHON)
-	set(PYTHON_VERSION 3.5) # CACHE STRING)
-
-	string(REPLACE "." "" _PYTHON_VERSION_NO_DOTS ${PYTHON_VERSION})
-	# Use shared libs for vc2008 and vc2010 until we actually have vc2010 libs
-	set(PYTHON_LIBRARY ${LIBDIR}/python/lib/python${_PYTHON_VERSION_NO_DOTS}.lib)
-	unset(_PYTHON_VERSION_NO_DOTS)
-
-	# Shared includes for both vc2008 and vc2010
-	set(PYTHON_INCLUDE_DIR ${LIBDIR}/python/include/python${PYTHON_VERSION})
-
-	# uncached vars
+	# Respect user-provided overrides from command line
+	if(NOT DEFINED PYTHON_INCLUDE_DIR)
+		if(DEFINED PYTHON_VERSION)
+			set(PYTHON_INCLUDE_DIR "${LIBDIR}/python/include/python${PYTHON_VERSION}")
+		else()
+			set(PYTHON_INCLUDE_DIR "${LIBDIR}/python/include/python3.5")
+		endif()
+		set(PYTHON_INCLUDE_DIR "${PYTHON_INCLUDE_DIR}" CACHE PATH "Python include dir" FORCE)
+		message(STATUS "Python include: ${PYTHON_INCLUDE_DIR}")
+	endif()
+	if(NOT DEFINED PYTHON_LIBRARY)
+		string(REPLACE "." "" _PYTHON_VERSION_NO_DOTS ${PYTHON_VERSION})
+		set(PYTHON_LIBRARY "${LIBDIR}/python/lib/python${_PYTHON_VERSION_NO_DOTS}.lib")
+		unset(_PYTHON_VERSION_NO_DOTS)
+		message(STATUS "Python library: ${PYTHON_LIBRARY}")
+	endif()
 	set(PYTHON_INCLUDE_DIRS "${PYTHON_INCLUDE_DIR}")
 	set(PYTHON_LIBRARIES  "${PYTHON_LIBRARY}")
 endif()
