@@ -138,6 +138,15 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
+      - name: Restore vcpkg binary cache
+        id: vcpkg-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            C:/vcpkg/installed
+            C:/vcpkg/buildtrees
+          key: vcpkg-win64-${{ hashFiles('.github/workflows/build.yml') }}-v2
+
       - name: Setup vcpkg deps
         run: |
           if (-not (Test-Path "C:\vcpkg")) {
@@ -145,14 +154,13 @@ jobs:
             C:\vcpkg\bootstrap-vcpkg.bat -disableMetrics
           }
           C:\vcpkg\vcpkg.exe install --triplet x64-windows `
-            zlib libpng libjpeg-turbo freetype glew pthreads openal-soft
+            zlib libpng libjpeg-turbo freetype glew pthreads openal-soft python3
         shell: pwsh
 
       - name: Build libs directory for Blender
         run: |
           $VCPKG = "C:\vcpkg\installed\x64-windows"
           $LIB = "${{ github.workspace }}\lib\win64_vc15"
-          # Build the expected directory structure with symlinks/junctions
           New-Item -ItemType Directory -Force -Path "$LIB"
           cmd /c mklink /J "$LIB\include" "$VCPKG\include"
           cmd /c mklink /J "$LIB\lib" "$VCPKG\lib"
@@ -163,30 +171,34 @@ jobs:
         run: |
           if (-not (Test-Path "${{ env.BUILD_DIR }}")) { New-Item -ItemType Directory -Path "${{ env.BUILD_DIR }}" }
           cd ${{ env.BUILD_DIR }}
-          cmake ${{ env.SOURCE_DIR }} `
-            -G "Visual Studio 17 2022" `
-            -A x64 `
-            -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake `
-            -DLIBDIR="${{ github.workspace }}/lib/win64_vc15" `
-            -DWITH_WINDOWS_FIND_MODULES=ON `
-            -DPYTHON_VERSION=3.10 `
-            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} `
-            -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_DIR }} `
-            -DWITH_PLAYER=OFF `
-            -DWITH_CYCLES=OFF `
-            -DWITH_OPENCOLORIO=OFF `
-            -DWITH_OPENSUBDIV=OFF `
-            -DWITH_CODEC_FFMPEG=OFF `
-            -DWITH_OPENCOLLADA=OFF `
-            -DWITH_ALEMBIC=OFF `
-            -DWITH_JACK=OFF `
-            -DWITH_SDL=OFF `
-            -DWITH_FFTW3=OFF `
-            -DWITH_MOD_OCEANSIM=OFF `
-            -DWITH_CYCLES_OSL=OFF `
-            -DWITH_LLVM=OFF `
-            -DWITH_OPENVDB=OFF `
+          cmake ${{ env.SOURCE_DIR }} @"
+            -G "Visual Studio 17 2022"
+            -A x64
+            -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+            -DLIBDIR=${{ github.workspace }}/lib/win64_vc15
+            -DWITH_WINDOWS_FIND_MODULES=ON
+            -DPYTHON_VERSION=3.10
+            -DPYTHON_INCLUDE_DIR=C:/vcpkg/installed/x64-windows/include/python3.10
+            -DPYTHON_LIBRARY=C:/vcpkg/installed/x64-windows/lib/python310.lib
+            -DPYTHON_LIBPATH=C:/vcpkg/installed/x64-windows/lib
+            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
+            -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_DIR }}
+            -DWITH_PLAYER=OFF
+            -DWITH_CYCLES=OFF
+            -DWITH_OPENCOLORIO=OFF
+            -DWITH_OPENSUBDIV=OFF
+            -DWITH_CODEC_FFMPEG=OFF
+            -DWITH_OPENCOLLADA=OFF
+            -DWITH_ALEMBIC=OFF
+            -DWITH_JACK=OFF
+            -DWITH_SDL=OFF
+            -DWITH_FFTW3=OFF
+            -DWITH_MOD_OCEANSIM=OFF
+            -DWITH_CYCLES_OSL=OFF
+            -DWITH_LLVM=OFF
+            -DWITH_OPENVDB=OFF
             -DWITH_INTERNATIONAL=OFF
+"@
         shell: pwsh
 
       - name: Build
