@@ -91,6 +91,8 @@ jobs:
             -DWITH_JACK=OFF \
             -DWITH_SDL=OFF \
             -DWITH_FFTW3=OFF \
+            -DWITH_IK_ITASC=OFF \
+            -DWITH_MOD_FLUID=OFF \
             -DWITH_MOD_OCEANSIM=OFF \
             -DWITH_CYCLES_OSL=OFF \
             -DWITH_LLVM=OFF \
