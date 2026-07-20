@@ -3,9 +3,25 @@ name: GnuChan Editor CI/CD
 on:
   push:
     branches: [main, master, develop]
+    paths-ignore:
+      - '**.md'
+      - '**.txt'
+      - 'docs/**'
+      - '.gitignore'
+      - 'LICENSE'
   pull_request:
     branches: [main, master]
+    paths-ignore:
+      - '**.md'
+      - '**.txt'
+      - 'docs/**'
+      - '.gitignore'
+      - 'LICENSE'
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   BUILD_TYPE: Release
@@ -15,39 +31,39 @@ env:
 
 jobs:
   # ──────────────────────────────────────────
-  # Build on Windows (MSVC 2019)
+  # Build on Windows (MSVC 2022)
   # ──────────────────────────────────────────
   build-windows:
-    name: "Windows Build (MSVC 2019)"
-    runs-on: windows-2019
+    name: "Windows (MSVC 2022)"
+    runs-on: windows-2022
     timeout-minutes: 120
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: recursive
           fetch-depth: 0
 
-      - name: Setup Python 3.7
+      - name: Setup Python 3.9
         uses: actions/setup-python@v5
         with:
-          python-version: '3.7'
+          python-version: '3.9'
 
-      - name: Install Python dependencies
+      - name: Install Python deps
         run: |
           python -m pip install --upgrade pip
           pip install numpy requests
 
       - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v1.3
+        uses: microsoft/setup-msbuild@v2
 
       - name: Configure CMake
         run: |
-          mkdir -p ${{ env.BUILD_DIR }}
+          if (-not (Test-Path "${{ env.BUILD_DIR }}")) { New-Item -ItemType Directory -Path "${{ env.BUILD_DIR }}" }
           cd ${{ env.BUILD_DIR }}
           cmake ${{ env.SOURCE_DIR }} `
-            -G "Visual Studio 16 2019" `
+            -G "Visual Studio 17 2022" `
             -A x64 `
             -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} `
             -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_DIR }} `
@@ -76,32 +92,32 @@ jobs:
           cd ${{ env.BUILD_DIR }}
           cmake --install . --config ${{ env.BUILD_TYPE }}
 
-      - name: Upload build artifacts
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: gnuchaneditor-windows-x64
           path: ${{ env.INSTALL_DIR }}
-          retention-days: 30
+          retention-days: 15
 
   # ──────────────────────────────────────────
-  # Build on Linux (GCC)
+  # Build on Linux (GCC, Ubuntu 22.04)
   # ──────────────────────────────────────────
   build-linux:
-    name: "Linux Build (GCC)"
-    runs-on: ubuntu-20.04
+    name: "Linux (GCC)"
+    runs-on: ubuntu-22.04
     timeout-minutes: 120
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: recursive
           fetch-depth: 0
 
-      - name: Install build dependencies
+      - name: Install build deps
         run: |
-          sudo apt-get update
-          sudo apt-get install -y \
+          sudo apt-get update -qq
+          sudo apt-get install -yqq --no-install-recommends \
             build-essential \
             cmake \
             git \
@@ -112,7 +128,7 @@ jobs:
             libxcursor-dev \
             libgl1-mesa-dev \
             libglu1-mesa-dev \
-            libfreetype6-dev \
+            libfreetype-dev \
             libjpeg-dev \
             libpng-dev \
             zlib1g-dev \
@@ -124,14 +140,15 @@ jobs:
             libboost-thread-dev \
             libboost-regex-dev \
             libboost-locale-dev \
-            python3.7-dev
+            python3.9-dev \
+            libtbb-dev
 
-      - name: Setup Python 3.7
+      - name: Setup Python 3.9
         uses: actions/setup-python@v5
         with:
-          python-version: '3.7'
+          python-version: '3.9'
 
-      - name: Install Python dependencies
+      - name: Install Python deps
         run: |
           python -m pip install --upgrade pip
           pip install numpy requests
@@ -168,15 +185,15 @@ jobs:
           cd ${{ env.BUILD_DIR }}
           cmake --install . --config ${{ env.BUILD_TYPE }}
 
-      - name: Upload build artifacts
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: gnuchaneditor-linux-x64
           path: ${{ env.INSTALL_DIR }}
-          retention-days: 30
+          retention-days: 15
 
   # ──────────────────────────────────────────
-  # Release packaging (runs on tags)
+  # Release (only on version tags)
   # ──────────────────────────────────────────
   create-release:
     name: "Create Release"
@@ -186,30 +203,30 @@ jobs:
     timeout-minutes: 30
 
     steps:
-      - name: Download Windows artifacts
+      - name: Download Windows
         uses: actions/download-artifact@v4
         with:
           name: gnuchaneditor-windows-x64
           path: release/windows
 
-      - name: Download Linux artifacts
+      - name: Download Linux
         uses: actions/download-artifact@v4
         with:
           name: gnuchaneditor-linux-x64
           path: release/linux
 
-      - name: Package Windows build
+      - name: Package Windows
         run: |
           cd release/windows
           7z a -tzip ../gnuchaneditor-${{ github.ref_name }}-windows-x64.zip *
 
-      - name: Package Linux build
+      - name: Package Linux
         run: |
           cd release/linux
           tar -czf ../gnuchaneditor-${{ github.ref_name }}-linux-x64.tar.gz *
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           name: "GnuChan Editor ${{ github.ref_name }}"
           body: |
@@ -223,12 +240,10 @@ jobs:
 
             ### Changes
             - Full rebrand from Blender to GnuChan Editor
-            - Updated to version 1.0
-            - Copyright reassigned to GnuChanOS
+            - Version 1.0
+            - Copyright: GnuChanOS
           files: |
             release/gnuchaneditor-${{ github.ref_name }}-windows-x64.zip
             release/gnuchaneditor-${{ github.ref_name }}-linux-x64.tar.gz
-          draft: false
-          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
