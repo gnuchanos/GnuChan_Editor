@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * The Original Code is Copyright (C) 2007 Blender Foundation
+ * The Original Code is Copyright (C) 2007 GnuChanOS
  * All rights reserved.
  *
  * The Original Code is: all of this file.
@@ -431,7 +431,7 @@ static ImBuf *thumb_create_ex(
 		}
 		BLI_snprintf(desc, sizeof(desc), "Thumbnail for %s", uri);
 		IMB_metadata_change_field(img, "Description", desc);
-		IMB_metadata_change_field(img, "Software", "Blender");
+		IMB_metadata_change_field(img, "Software", "GnuChan Editor");
 		IMB_metadata_change_field(img, "Thumb::URI", uri);
 		IMB_metadata_change_field(img, "Thumb::MTime", mtime);
 		if (use_hash) {

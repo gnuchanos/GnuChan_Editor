@@ -26,7 +26,7 @@ bl_info = {
     "location": "View3D > Tools > Oscurart Tools",
     "description": "Tools for objects, render, shapes, and files.",
     "warning": "",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/3D_interaction/Oscurart_Tools",
     "category": "Object",
     }

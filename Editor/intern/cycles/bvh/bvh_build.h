@@ -1,6 +1,6 @@
 /*
  * Adapted from code copyright 2009-2010 NVIDIA Corporation
- * Modifications Copyright 2011, Blender Foundation.
+ * Modifications Copyright 2011, GnuChanOS.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

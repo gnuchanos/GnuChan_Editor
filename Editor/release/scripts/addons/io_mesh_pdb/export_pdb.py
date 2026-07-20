@@ -64,7 +64,7 @@ def export_pdb(obj_type, filepath_pdb):
     pdb_file_p = open(filepath_pdb, "w")
     pdb_file_p.write("REMARK This pdb file has been created with Blender "
                      "and the addon Atomic Blender - PDB\n"
-                     "REMARK For more details see wiki.blender.org/index.php/"
+                     "REMARK For more details see wiki.gnuchanos.org/index.php/"
                      "Extensions:2.6/Py/Scripts/Import-Export/PDB\n"
                      "REMARK\n"
                      "REMARK\n")

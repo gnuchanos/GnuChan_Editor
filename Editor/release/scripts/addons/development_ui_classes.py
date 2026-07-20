@@ -26,7 +26,7 @@ bl_info = {
     "location": "Text Editor > Properties",
     "description": "Print the UI classes in a text-block",
     "warning": "",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/"
                 "Py/Scripts/Development/Classes_Overview",
     "category": "Development"
     }

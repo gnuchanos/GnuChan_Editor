@@ -26,7 +26,7 @@ bl_info = {
     "location": "View3D > Tools",
     "description": "Make an inset polygon inside selection.",
     "warning": "",
-    "wiki_url": "http://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "http://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/Modeling/Inset-Polygon",
     "category": "Mesh"}
 

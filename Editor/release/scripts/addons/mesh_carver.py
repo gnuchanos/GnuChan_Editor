@@ -23,7 +23,7 @@ bl_info = {
     "author": "Pixivore, Cedric LEPILLER, Ted Milker",
     "version": (1, 1, 7),
     "blender": (2, 77, 0),
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/Modeling/Carver",
     "description": "Multiple tools to carve or to create objects",
     }

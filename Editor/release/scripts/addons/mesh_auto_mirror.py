@@ -13,7 +13,7 @@ bl_info = {
     "blender": (2, 7, 1),
     "location": "View 3D > Toolbar > Tools tab > AutoMirror (panel)",
     "warning": "",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/"
                 "Py/Scripts/Modeling/AutoMirror",
     "category": "Mesh"}
 

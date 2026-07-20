@@ -24,7 +24,7 @@ bl_info = {
     "location": "File > Export > Skeletal Mesh/Animation Data (.psk/.psa)",
     "description": "Export Skeleletal Mesh/Animation Data",
     "warning": "",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/Import-Export/Unreal_psk_psa",
     "category": "Import-Export",
 }

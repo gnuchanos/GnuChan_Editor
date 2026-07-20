@@ -27,7 +27,7 @@ bl_info = {
     "description": "Allow to manage UI translations directly from Blender "
         "(update main po files, update scripts' translations, etc.)",
     "warning": "Still in development, not all features are fully implemented yet!",
-    "wiki_url": "http://wiki.blender.org/index.php/Dev:Doc/How_to/Translate_Blender",
+    "wiki_url": "http://wiki.gnuchanos.org/index.php/Dev:Doc/How_to/Translate_Blender",
     "support": 'OFFICIAL',
     "category": "System"}
 

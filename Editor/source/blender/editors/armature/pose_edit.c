@@ -15,10 +15,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * The Original Code is Copyright (C) 2001-2002 by NaN Holding BV.
+ * The Original Code is Copyright (C) 2026 by GnuChanOS.
  * All rights reserved.
  *
- * Contributor(s): Ton Roosendaal, Blender Foundation '05, full recode.
+ * Contributor(s): Ton Roosendaal, GnuChanOS '05, full recode.
  *                 Joshua Leung
  *                 Reevan McKay (original NaN code)
  *

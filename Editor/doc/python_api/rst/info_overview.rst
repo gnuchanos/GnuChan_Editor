@@ -95,7 +95,7 @@ variable which Blender uses to read metadata such as name, author, category and 
 
 The User Preferences add-on listing uses **bl_info** to display information about each add-on.
 
-`See Add-ons <https://wiki.blender.org/index.php/Dev:Py/Scripts/Guidelines/Addons>`__
+`See Add-ons <https://wiki.gnuchanos.org/index.php/Dev:Py/Scripts/Guidelines/Addons>`__
 for details on the ``bl_info`` dictionary.
 
 

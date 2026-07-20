@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * The Original Code is Copyright (C) 2001-2002 by NaN Holding BV.
+ * The Original Code is Copyright (C) 2026 by GnuChanOS.
  * All rights reserved.
  *
  * The Original Code is: all of this file.
@@ -549,7 +549,7 @@ int PyObjectPlus::py_set_attrdef(PyObject *self_py, PyObject *value, const PyAtt
 		case KX_PYATTRIBUTE_TYPE_FUNCTION:
 			if (attrdef->m_setFunction == NULL) 
 			{
-				PyErr_Format(PyExc_AttributeError, "function attribute without function for attribute \"%s\", report to blender.org", attrdef->m_name);
+				PyErr_Format(PyExc_AttributeError, "function attribute without function for attribute \"%s\", report to gnuchanos.org", attrdef->m_name);
 				return PY_SET_ATTR_FAIL;
 			}
 			return (*attrdef->m_setFunction)(ref, attrdef, value);
@@ -568,7 +568,7 @@ int PyObjectPlus::py_set_attrdef(PyObject *self_py, PyObject *value, const PyAtt
 			break;
 		default:
 			// should not happen
-			PyErr_Format(PyExc_AttributeError, "Unsupported attribute type for attribute \"%s\", report to blender.org", attrdef->m_name);
+			PyErr_Format(PyExc_AttributeError, "Unsupported attribute type for attribute \"%s\", report to gnuchanos.org", attrdef->m_name);
 			return PY_SET_ATTR_FAIL;
 		}
 		// let's implement a smart undo method
@@ -635,7 +635,7 @@ int PyObjectPlus::py_set_attrdef(PyObject *self_py, PyObject *value, const PyAtt
 				// enum are equivalent to int, just make sure that the field size matches:
 				if (sizeof(int) != attrdef->m_size)
 				{
-					PyErr_Format(PyExc_AttributeError, "Size check error for attribute, \"%s\", report to blender.org", attrdef->m_name);
+					PyErr_Format(PyExc_AttributeError, "Size check error for attribute, \"%s\", report to gnuchanos.org", attrdef->m_name);
 					goto UNDO_AND_ERROR;
 				}
 				ATTR_FALLTHROUGH;
@@ -694,7 +694,7 @@ int PyObjectPlus::py_set_attrdef(PyObject *self_py, PyObject *value, const PyAtt
 				}
 			default:
 				// should not happen
-				PyErr_Format(PyExc_AttributeError, "type check error for attribute \"%s\", report to blender.org", attrdef->m_name);
+				PyErr_Format(PyExc_AttributeError, "type check error for attribute \"%s\", report to gnuchanos.org", attrdef->m_name);
 				goto UNDO_AND_ERROR;
 			}
 			// finished using item, release
@@ -732,7 +732,7 @@ int PyObjectPlus::py_set_attrdef(PyObject *self_py, PyObject *value, const PyAtt
 		{
 			if (attrdef->m_setFunction == NULL)
 			{
-				PyErr_Format(PyExc_AttributeError, "function attribute without function \"%s\", report to blender.org", attrdef->m_name);
+				PyErr_Format(PyExc_AttributeError, "function attribute without function \"%s\", report to gnuchanos.org", attrdef->m_name);
 				return PY_SET_ATTR_FAIL;
 			}
 			return (*attrdef->m_setFunction)(ref, attrdef, value);
@@ -773,7 +773,7 @@ int PyObjectPlus::py_set_attrdef(PyObject *self_py, PyObject *value, const PyAtt
 				bufferSize = sizeof(MT_Vector3);
 				break;
 			default:
-				PyErr_Format(PyExc_AttributeError, "unknown type for attribute \"%s\", report to blender.org", attrdef->m_name);
+				PyErr_Format(PyExc_AttributeError, "unknown type for attribute \"%s\", report to gnuchanos.org", attrdef->m_name);
 				return PY_SET_ATTR_FAIL;
 			}
 			if (bufferSize)
@@ -880,7 +880,7 @@ int PyObjectPlus::py_set_attrdef(PyObject *self_py, PyObject *value, const PyAtt
 			// enum are equivalent to int, just make sure that the field size matches:
 			if (sizeof(int) != attrdef->m_size)
 			{
-				PyErr_Format(PyExc_AttributeError, "attribute size check error for attribute \"%s\", report to blender.org", attrdef->m_name);
+				PyErr_Format(PyExc_AttributeError, "attribute size check error for attribute \"%s\", report to gnuchanos.org", attrdef->m_name);
 				goto FREE_AND_ERROR;
 			}
 			ATTR_FALLTHROUGH;
@@ -1070,7 +1070,7 @@ int PyObjectPlus::py_set_attrdef(PyObject *self_py, PyObject *value, const PyAtt
 			}
 		default:
 			// should not happen
-			PyErr_Format(PyExc_AttributeError, "unknown type for attribute \"%s\", report to blender.org", attrdef->m_name);
+			PyErr_Format(PyExc_AttributeError, "unknown type for attribute \"%s\", report to gnuchanos.org", attrdef->m_name);
 			goto FREE_AND_ERROR;
 		}
 	}

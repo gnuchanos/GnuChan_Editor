@@ -19,7 +19,7 @@
 #  OPENEXR_LIBRARY, where to find the OpenEXR library.
 
 #=============================================================================
-# Copyright 2011 Blender Foundation.
+# Copyright 2011 GnuChanOS.
 #
 # Distributed under the OSI-approved BSD License (the "License");
 # see accompanying file Copyright.txt for details.

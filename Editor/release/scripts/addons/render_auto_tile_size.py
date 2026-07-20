@@ -24,7 +24,7 @@ bl_info = {
     "blender": (2, 74, 0),
     "location": "Render Settings > Performance",
     "warning": "",
-    "wiki_url": "https://wiki.blender.org/index.php?title=Extensions:2.6/Py/"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php?title=Extensions:2.6/Py/"
                 "Scripts/Render/Auto_Tile_Size",
     "category": "Render",
 }

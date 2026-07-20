@@ -861,7 +861,7 @@ def make_kfdata(start=0, stop=0, curtime=0):
     kfhdr.add_variable("revision", _3ds_ushort(0))
     # Not really sure what filename is used for, but it seems it is usually used
     # to identify the program that generated the .3ds:
-    kfhdr.add_variable("filename", _3ds_string("Blender"))
+    kfhdr.add_variable("filename", _3ds_string("GnuChan Editor"))
     kfhdr.add_variable("animlen", _3ds_uint(stop-start))
 
     kfseg = _3ds_chunk(KFDATA_KFSEG)

@@ -9,7 +9,7 @@ bl_info = {
     "blender": (2, 62, 0),
     "location": "View3D > Add > Curve",
     "warning": "",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.4/Py/"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.4/Py/"
                 "Scripts/Object/Spirals",
     "tracker_url": "http://alexvaqp.googlepages.com?"
                    "func=detail&aid=<number>",

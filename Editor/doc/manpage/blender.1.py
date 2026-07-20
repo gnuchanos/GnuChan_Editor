@@ -79,7 +79,7 @@ is a 3D modelling and rendering package. Originating as the in-house software of
 
 Use Blender to create TV commercials, to make technical visualizations, business graphics, to create content for games, or design user interfaces. You can easy build and manage complex environments. The renderer is versatile and extremely fast. All basic animation principles (curves & keys) are well implemented.
 
-http://www.blender.org''')
+http://www.gnuchanos.org''')
 
 fw('''
 .SH OPTIONS''')

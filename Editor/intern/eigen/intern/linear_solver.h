@@ -1,7 +1,7 @@
 /*
  *  Sparse linear solver.
  *  Copyright (C) 2004 Bruno Levy
- *  Copyright (C) 2005-2015 Blender Foundation
+ *  Copyright (C) 2005-2015 GnuChanOS
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by

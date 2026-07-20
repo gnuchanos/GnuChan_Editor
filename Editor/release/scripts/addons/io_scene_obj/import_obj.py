@@ -28,7 +28,7 @@ Usage:
 Run this script from "File->Import" menu and then load the desired OBJ file.
 Note, This loads mesh objects and materials only, nurbs and curves are not supported.
 
-http://wiki.blender.org/index.php/Scripts/Manual/Import/wavefront_obj
+http://wiki.gnuchanos.org/index.php/Scripts/Manual/Import/wavefront_obj
 """
 
 import array

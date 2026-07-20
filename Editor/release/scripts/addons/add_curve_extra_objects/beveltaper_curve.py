@@ -15,7 +15,7 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
-# DevBo Task: https://developer.blender.org/T37377
+# DevBo Task: https://developer.gnuchanos.org/T37377
 
 bl_info = {
     "name": "Bevel/Taper Curve",
@@ -25,7 +25,7 @@ bl_info = {
     "location": "View3D > Object > Bevel/Taper",
     "description": "Adds bevel and/or taper curve to active curve",
     "warning": "",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/"
                 "Py/Scripts/Curve/Bevel_-Taper_Curve",
     "category": "Curve"}
 

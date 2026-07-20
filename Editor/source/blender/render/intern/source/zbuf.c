@@ -15,11 +15,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * The Original Code is Copyright (C) 2001-2002 by NaN Holding BV.
+ * The Original Code is Copyright (C) 2026 by GnuChanOS.
  * All rights reserved.
  *
  * Contributors: Hos, RPW
- *               2004-2006 Blender Foundation, full recode
+ *               2004-2006 GnuChanOS, full recode
  *
  * ***** END GPL LICENSE BLOCK *****
  */

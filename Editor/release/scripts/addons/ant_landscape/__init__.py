@@ -27,7 +27,7 @@ bl_info = {
     "location": "View3D > Tool Shelf",
     "description": "Another Noise Tool: Landscape and Displace",
     "warning": "",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/Add_Mesh/ANT_Landscape",
     "category": "Add Mesh",
 }
@@ -561,7 +561,7 @@ class AntLandscapePropertiesGroup(bpy.types.PropertyGroup):
             default="0",
             description="Noise basis algorithms",
             items = [
-                ("0", "Blender", "Blender default noise", 0),
+                ("0", "GnuChan Editor", "Blender default noise", 0),
                 ("1", "Perlin", "Perlin noise", 1),
                 ("2", "New Perlin", "New Perlin noise", 2),
                 ("3", "Voronoi F1", "Voronoi F1", 3),
@@ -577,7 +577,7 @@ class AntLandscapePropertiesGroup(bpy.types.PropertyGroup):
             default="0",
             description="VLNoise basis algorithms",
             items = [
-                ("0", "Blender", "Blender default noise", 0),
+                ("0", "GnuChan Editor", "Blender default noise", 0),
                 ("1", "Perlin", "Perlin noise", 1),
                 ("2", "New Perlin", "New Perlin noise", 2),
                 ("3", "Voronoi F1", "Voronoi F1", 3),

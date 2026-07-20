@@ -14,7 +14,7 @@ TEST(hash_mm2a, MM2ABasic)
 {
 	BLI_HashMurmur2A mm2;
 
-	const char *data = "Blender";
+	const char *data = "GnuChan Editor";
 
 	BLI_hash_mm2a_init(&mm2, 0);
 	BLI_hash_mm2a_add(&mm2, (const unsigned char *)data, strlen(data));
@@ -30,7 +30,7 @@ TEST(hash_mm2a, MM2AConcatenateStrings)
 	BLI_HashMurmur2A mm2;
 	uint32_t hash;
 
-	const char *data1 = "Blender";
+	const char *data1 = "GnuChan Editor";
 	const char *data2 = " is ";
 	const char *data3 = "FaNtAsTiC";
 	const char *data123 = "Blender is FaNtAsTiC";

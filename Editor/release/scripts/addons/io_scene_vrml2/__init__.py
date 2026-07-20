@@ -25,7 +25,7 @@ bl_info = {
     "location": "File > Export",
     "description": "Exports mesh objects to VRML2, supporting vertex and material colors",
     "warning": "",
-    "wiki_url": "http://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "http://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/Import-Export/VRML2",
     "support": 'OFFICIAL',
     "category": "Import-Export"}

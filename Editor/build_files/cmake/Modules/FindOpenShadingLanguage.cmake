@@ -12,7 +12,7 @@
 #                and minor versions of OSL library if found.
 #
 #=============================================================================
-# Copyright 2014 Blender Foundation.
+# Copyright 2014 GnuChanOS.
 #
 # Distributed under the OSI-approved BSD License (the "License");
 # see accompanying file Copyright.txt for details.

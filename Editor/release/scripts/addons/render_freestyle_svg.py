@@ -197,7 +197,7 @@ class SVGExporterLinesetPanel(bpy.types.Panel):
         except AttributeError:
             # Linestyles can be removed, so 0 linestyles is possible.
             # there is nothing to draw in those cases.
-            # see https://developer.blender.org/T49855
+            # see https://developer.gnuchanos.org/T49855
             return
 
         else:
@@ -700,9 +700,9 @@ def handle_versions(self):
     if not bpy.data.is_saved:
         return
 
-    # Revision https://developer.blender.org/rBA861519e44adc5674545fa18202dc43c4c20f2d1d
+    # Revision https://developer.gnuchanos.org/rBA861519e44adc5674545fa18202dc43c4c20f2d1d
     # changed the default for fills.
-    # fix by Sergey https://developer.blender.org/T46150
+    # fix by Sergey https://developer.gnuchanos.org/T46150
     if bpy.data.version <= (2, 76, 0):
         for linestyle in bpy.data.linestyles:
             linestyle.use_export_fills = True

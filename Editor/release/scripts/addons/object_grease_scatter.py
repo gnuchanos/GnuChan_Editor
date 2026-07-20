@@ -29,7 +29,7 @@ bl_info = {
     "description": "Scatter a group of objects onto the active mesh using "
                    "the grease pencil lines",
     "warning": "",
-    "wiki_url": "http://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "http://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/Object/Grease_Scatter",
     "support": 'OFFICIAL',
     "category": "Object",

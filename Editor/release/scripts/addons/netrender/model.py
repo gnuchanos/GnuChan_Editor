@@ -54,7 +54,7 @@ JOB_PROCESS = 2
 JOB_VCS     = 3
 
 JOB_TYPES = {
-                JOB_BLENDER: "Blender",
+                JOB_BLENDER: "GnuChan Editor",
                 JOB_PROCESS: "Process",
                 JOB_VCS:     "Versioned",
             }

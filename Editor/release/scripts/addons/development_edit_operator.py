@@ -25,7 +25,7 @@ bl_info = {
     "location": "Text Editor > Edit > Edit Operator",
     "description": "Opens source file of chosen operator, if it is an add-on one",
     "warning": "",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/"
                 "Py/Scripts/Development/Edit_Operator_Source",
     "category": "Development"}
 

@@ -493,7 +493,7 @@ class NetRenderSettings(bpy.types.PropertyGroup):
 
         NetRenderSettings.job_type = EnumProperty(
                                 items=(
-                                                ("JOB_BLENDER", "Blender", "Standard Blender Job"),
+                                                ("JOB_BLENDER", "GnuChan Editor", "Standard Blender Job"),
                                                 ("JOB_PROCESS", "Process", "Custom Process Job"),
                                                 ("JOB_VCS", "VCS", "Version Control System Managed Job"),
                                             ),

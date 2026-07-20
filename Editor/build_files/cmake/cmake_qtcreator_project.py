@@ -62,7 +62,7 @@ def create_qtc_project_main(name):
     # --- qtcreator specific, simple format
     if SIMPLE_PROJECTFILE:
         # --- qtcreator specific, simple format
-        PROJECT_NAME = name or "Blender"
+        PROJECT_NAME = name or "GnuChan Editor"
         FILE_NAME = PROJECT_NAME.lower()
         with open(os.path.join(PROJECT_DIR, "%s.files" % FILE_NAME), 'w') as f:
             f.write("\n".join(files_rel))

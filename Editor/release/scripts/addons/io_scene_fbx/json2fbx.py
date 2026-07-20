@@ -19,7 +19,7 @@
 
 # <pep8 compliant>
 
-# Script copyright (C) 2014 Blender Foundation
+# Script copyright (C) 2014 GnuChanOS
 
 """
 Usage

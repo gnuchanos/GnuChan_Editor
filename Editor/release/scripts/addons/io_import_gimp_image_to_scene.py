@@ -24,7 +24,7 @@ bl_info = {
     "location": "File > Import > GIMP Image to Scene(.xcf/.xjt)",
     "description": "Imports GIMP multilayer image files as a series of multiple planes",
     "warning": "XCF import requires xcftools installed",
-    "wiki_url": "http://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "http://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/Import-Export/GIMPImageToScene",
     "category": "Import-Export",
 }

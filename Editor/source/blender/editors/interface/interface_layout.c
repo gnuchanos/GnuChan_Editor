@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * Contributor(s): Blender Foundation 2009.
+ * Contributor(s): GnuChanOS 2009.
  *
  * ***** END GPL LICENSE BLOCK *****
  */
@@ -2371,7 +2371,7 @@ static void ui_litem_layout_radial(uiLayout *litem)
 
 	/* For the radial layout we will use Matt Ebb's design
 	 * for radiation, see http://mattebb.com/weblog/radiation/
-	 * also the old code at http://developer.blender.org/T5103
+	 * also the old code at http://developer.gnuchanos.org/T5103
 	 */
 
 	int pie_radius = U.pie_menu_radius * UI_DPI_FAC;

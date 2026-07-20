@@ -25,7 +25,7 @@ bl_info = {
     "location": "View3D > Spacebar",
     "description": "Object Mode Context Sensitive Spacebar Menu",
     "warning": "",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/3D_interaction/Dynamic_Spacebar_Menu",
     "category": "3D View",
 }

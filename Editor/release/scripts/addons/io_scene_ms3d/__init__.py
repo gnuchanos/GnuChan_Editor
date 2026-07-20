@@ -27,7 +27,7 @@ bl_info = {
     "blender": (2, 72, 2),
     "location": "File > Import & File > Export",
     "warning": "",
-    "wiki_url": "http://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "http://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/Import-Export/MilkShape3D_MS3D",
     "category": "Import-Export",
 }

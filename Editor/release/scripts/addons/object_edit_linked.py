@@ -24,7 +24,7 @@ bl_info = {
     "blender": (2, 74, 0),
     "location": "View3D > Toolshelf > Edit Linked Library",
     "description": "Allows editing of objects linked from a .blend library.",
-    "wiki_url": "http://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "http://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/Object/Edit_Linked_Library",
     "category": "Object",
 }

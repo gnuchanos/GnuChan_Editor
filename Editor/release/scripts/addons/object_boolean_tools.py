@@ -25,7 +25,7 @@ bl_info = {
     "blender": (2, 78, 0),
     "location": "View3D > Toolshelf",
     "description": "Bool Tools Hotkey: Ctrl Shift B",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/Object/BoolTool",
     "category": "Object",
     }

@@ -25,7 +25,7 @@ bl_info = {
     "blender": (2, 6, 9),
     "location": "Text Editor > Props Shelf (Ctrl/t > IsKeyFree Tools",
     "description": "Find free shortcuts and inform of used keys",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6"
                 "/Py/Scripts/Development/IsKeyFree",
     "category": "Development"}
 

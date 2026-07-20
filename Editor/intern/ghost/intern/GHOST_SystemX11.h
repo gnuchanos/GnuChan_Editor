@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * The Original Code is Copyright (C) 2001-2002 by NaN Holding BV.
+ * The Original Code is Copyright (C) 2026 by GnuChanOS.
  * All rights reserved.
  *
  * The Original Code is: all of this file.
@@ -44,8 +44,8 @@
 #endif
 
 #if defined(WITH_X11_XINPUT) && defined(X_HAVE_UTF8_STRING)
-#  define GHOST_X11_RES_NAME  "Blender" /* res_name */
-#  define GHOST_X11_RES_CLASS "Blender" /* res_class */
+#  define GHOST_X11_RES_NAME  "GnuChan Editor" /* res_name */
+#  define GHOST_X11_RES_CLASS "GnuChan Editor" /* res_class */
 #endif
 
 /* generic error handlers */

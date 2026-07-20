@@ -27,7 +27,7 @@ bl_info = {
     "location": "Render > Engine > POV-Ray 3.7",
     "description": "Basic POV-Ray 3.7 integration for blender",
     "warning": "this script is RC",
-    "wiki_url": "http://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "http://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/Render/POV-Ray",
     "category": "Render",
 }

@@ -26,7 +26,7 @@ bl_info = {
     "location": "Active Armature > Object Properties > Mocap tools",
     "description": "Various tools for working with motion capture animation",
     "warning": "",
-    "wiki_url": "http://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "http://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/Animation/Motion_Capture_Tools",
     "support": 'OFFICIAL',
     "category": "Animation",

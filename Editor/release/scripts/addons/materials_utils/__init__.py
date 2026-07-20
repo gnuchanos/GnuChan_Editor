@@ -31,7 +31,7 @@ bl_info = {
     "location": "Materials Properties Specials > Shift Q",
     "description": "Materials Utils and Convertors",
     "warning": "",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/3D_interaction/Materials_Utils",
     "category": "Material"
     }

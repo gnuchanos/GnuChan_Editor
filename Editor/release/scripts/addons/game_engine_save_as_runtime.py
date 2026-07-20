@@ -24,7 +24,7 @@ bl_info = {
     "location": "File > Export",
     "description": "Bundle a .blend file with the Blenderplayer",
     "warning": "",
-    "wiki_url": "http://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "http://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/Game_Engine/Save_As_Runtime",
     "category": "Game Engine",
 }

@@ -30,7 +30,7 @@ bl_info = {
     "description": "Individual Create Panel Activation List",
     "location": "Addons Preferences",
     "warning": "",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6"
                 "/Py/Scripts/Object/Add_Advanced",
     "category": "Object"
     }

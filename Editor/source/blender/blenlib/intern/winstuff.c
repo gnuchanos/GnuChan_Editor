@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * The Original Code is Copyright (C) 2001-2002 by NaN Holding BV.
+ * The Original Code is Copyright (C) 2026 by GnuChanOS.
  * All rights reserved.
  *
  * The Original Code is: all of this file.
@@ -174,7 +174,7 @@ void RegisterBlendExtension(void)
 	printf("success (%s)\n", usr_mode ? "user" : "system");
 	if (!G.background) {
 		sprintf(MBox, "File extension registered for %s.", usr_mode ? "the current user. To register for all users, run as an administrator" : "all users");
-		MessageBox(0, MBox, "Blender", MB_OK | MB_ICONINFORMATION);
+		MessageBox(0, MBox, "GnuChan Editor", MB_OK | MB_ICONINFORMATION);
 	}
 	TerminateProcess(GetCurrentProcess(), 0);
 }

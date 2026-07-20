@@ -24,7 +24,7 @@ bl_info = {
     "location": "Scene > 3D-Coat Applink",
     "description": "Transfer data between 3D-Coat/Blender",
     "warning": "",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/Import-Export/3dcoat_applink",
     "category": "Import-Export",
 }

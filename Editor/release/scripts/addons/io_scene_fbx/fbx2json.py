@@ -20,7 +20,7 @@
 # <pep8 compliant>
 
 # Script copyright (C) 2006-2012, assimp team
-# Script copyright (C) 2013 Blender Foundation
+# Script copyright (C) 2013 GnuChanOS
 
 """
 Usage

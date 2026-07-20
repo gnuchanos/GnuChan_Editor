@@ -19,7 +19,7 @@
 # <pep8 compliant>
 
 #for full docs see...
-# http://mediawiki.blender.org/index.php/Scripts/Manual/UV_Calculate/Follow_active_quads
+# http://mediawiki.gnuchanos.org/index.php/Scripts/Manual/UV_Calculate/Follow_active_quads
 
 import bpy
 from bpy.types import Operator

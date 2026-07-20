@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * Contributor(s): Blender Foundation 2013, Joshua Leung, Sergej Reich
+ * Contributor(s): GnuChanOS 2013, Joshua Leung, Sergej Reich
  *
  * ***** END GPL LICENSE BLOCK *****
  */

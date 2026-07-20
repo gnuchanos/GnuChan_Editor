@@ -55,7 +55,7 @@ def blender_id_endpoint(endpoint_path=None):
     import os
     import urllib.parse
 
-    base_url = os.environ.get('BLENDER_ID_ENDPOINT', 'https://www.blender.org/id/')
+    base_url = os.environ.get('BLENDER_ID_ENDPOINT', 'https://www.gnuchanos.org/id/')
 
     # urljoin() is None-safe for the 2nd parameter.
     return urllib.parse.urljoin(base_url, endpoint_path)

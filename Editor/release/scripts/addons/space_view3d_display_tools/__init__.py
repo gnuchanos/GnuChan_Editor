@@ -30,7 +30,7 @@ bl_info = {
     "location": "Toolshelf",
     "description": "Display tools for fast navigation/interaction with the viewport",
     "warning": "",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/"
                 "Py/Scripts/3D_interaction/Display_Tools",
     "category": "3D View"}
 

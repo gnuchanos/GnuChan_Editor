@@ -24,7 +24,7 @@ bl_info = {
     "location": "View3D > Toolshelf > Create Tab",
     "description": "Displaced Cell Fracture Addon",
     "warning": "Make sure to enable 'Object: Cell Fracture' Addon",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/"
                 "Py/Scripts/Object/CrackIt",
     "category": "Object"
 }

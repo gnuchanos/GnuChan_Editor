@@ -1,0 +1,234 @@
+name: GnuChan Editor CI/CD
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+env:
+  BUILD_TYPE: Release
+  SOURCE_DIR: ${{ github.workspace }}/Editor
+  BUILD_DIR: ${{ github.workspace }}/build
+  INSTALL_DIR: ${{ github.workspace }}/install
+
+jobs:
+  # ──────────────────────────────────────────
+  # Build on Windows (MSVC 2019)
+  # ──────────────────────────────────────────
+  build-windows:
+    name: "Windows Build (MSVC 2019)"
+    runs-on: windows-2019
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Setup Python 3.7
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.7'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy requests
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1.3
+
+      - name: Configure CMake
+        run: |
+          mkdir -p ${{ env.BUILD_DIR }}
+          cd ${{ env.BUILD_DIR }}
+          cmake ${{ env.SOURCE_DIR }} `
+            -G "Visual Studio 16 2019" `
+            -A x64 `
+            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} `
+            -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_DIR }} `
+            -DWITH_PLAYER=OFF `
+            -DWITH_CYCLES=ON `
+            -DWITH_OPENCOLORIO=OFF `
+            -DWITH_OPENSUBDIV=OFF `
+            -DWITH_CODEC_FFMPEG=OFF `
+            -DWITH_OPENCOLLADA=OFF `
+            -DWITH_ALEMBIC=OFF `
+            -DWITH_JACK=OFF `
+            -DWITH_SDL=OFF `
+            -DWITH_FFTW3=OFF `
+            -DWITH_MOD_OCEANSIM=OFF `
+            -DWITH_CYCLES_OSL=OFF `
+            -DWITH_LLVM=OFF `
+            -DWITH_OPENVDB=OFF
+
+      - name: Build
+        run: |
+          cd ${{ env.BUILD_DIR }}
+          cmake --build . --config ${{ env.BUILD_TYPE }} --parallel $env:NUMBER_OF_PROCESSORS
+
+      - name: Install
+        run: |
+          cd ${{ env.BUILD_DIR }}
+          cmake --install . --config ${{ env.BUILD_TYPE }}
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: gnuchaneditor-windows-x64
+          path: ${{ env.INSTALL_DIR }}
+          retention-days: 30
+
+  # ──────────────────────────────────────────
+  # Build on Linux (GCC)
+  # ──────────────────────────────────────────
+  build-linux:
+    name: "Linux Build (GCC)"
+    runs-on: ubuntu-20.04
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            cmake \
+            git \
+            libx11-dev \
+            libxi-dev \
+            libxrandr-dev \
+            libxinerama-dev \
+            libxcursor-dev \
+            libgl1-mesa-dev \
+            libglu1-mesa-dev \
+            libfreetype6-dev \
+            libjpeg-dev \
+            libpng-dev \
+            zlib1g-dev \
+            libopenal-dev \
+            libsndfile1-dev \
+            libboost-dev \
+            libboost-system-dev \
+            libboost-filesystem-dev \
+            libboost-thread-dev \
+            libboost-regex-dev \
+            libboost-locale-dev \
+            python3.7-dev
+
+      - name: Setup Python 3.7
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.7'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy requests
+
+      - name: Configure CMake
+        run: |
+          mkdir -p ${{ env.BUILD_DIR }}
+          cd ${{ env.BUILD_DIR }}
+          cmake ${{ env.SOURCE_DIR }} \
+            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+            -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_DIR }} \
+            -DWITH_PLAYER=OFF \
+            -DWITH_SYSTEM_GLEW=ON \
+            -DWITH_CODEC_FFMPEG=OFF \
+            -DWITH_OPENCOLLADA=OFF \
+            -DWITH_ALEMBIC=OFF \
+            -DWITH_JACK=OFF \
+            -DWITH_SDL=OFF \
+            -DWITH_FFTW3=OFF \
+            -DWITH_MOD_OCEANSIM=OFF \
+            -DWITH_CYCLES_OSL=OFF \
+            -DWITH_LLVM=OFF \
+            -DWITH_OPENVDB=OFF \
+            -DWITH_OPENCOLORIO=OFF \
+            -DWITH_OPENSUBDIV=OFF
+
+      - name: Build
+        run: |
+          cd ${{ env.BUILD_DIR }}
+          cmake --build . --config ${{ env.BUILD_TYPE }} --parallel $(nproc)
+
+      - name: Install
+        run: |
+          cd ${{ env.BUILD_DIR }}
+          cmake --install . --config ${{ env.BUILD_TYPE }}
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: gnuchaneditor-linux-x64
+          path: ${{ env.INSTALL_DIR }}
+          retention-days: 30
+
+  # ──────────────────────────────────────────
+  # Release packaging (runs on tags)
+  # ──────────────────────────────────────────
+  create-release:
+    name: "Create Release"
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [build-windows, build-linux]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Download Windows artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: gnuchaneditor-windows-x64
+          path: release/windows
+
+      - name: Download Linux artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: gnuchaneditor-linux-x64
+          path: release/linux
+
+      - name: Package Windows build
+        run: |
+          cd release/windows
+          7z a -tzip ../gnuchaneditor-${{ github.ref_name }}-windows-x64.zip *
+
+      - name: Package Linux build
+        run: |
+          cd release/linux
+          tar -czf ../gnuchaneditor-${{ github.ref_name }}-linux-x64.tar.gz *
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: "GnuChan Editor ${{ github.ref_name }}"
+          body: |
+            ## GnuChan Editor ${{ github.ref_name }}
+
+            Based on Blender 2.79 source code, rebranded and maintained by GnuChanOS.
+
+            ### Downloads
+            - **Windows**: `gnuchaneditor-${{ github.ref_name }}-windows-x64.zip`
+            - **Linux**: `gnuchaneditor-${{ github.ref_name }}-linux-x64.tar.gz`
+
+            ### Changes
+            - Full rebrand from Blender to GnuChan Editor
+            - Updated to version 1.0
+            - Copyright reassigned to GnuChanOS
+          files: |
+            release/gnuchaneditor-${{ github.ref_name }}-windows-x64.zip
+            release/gnuchaneditor-${{ github.ref_name }}-linux-x64.tar.gz
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -31,7 +31,7 @@ bl_info = {
 # BLENDER LAPLACIAN LIGHTNING
 # teldredge
 # www.funkboxing.com
-# https://developer.blender.org/T27189
+# https://developer.gnuchanos.org/T27189
 
 # using algorithm from
 # FAST SIMULATION OF LAPLACIAN GROWTH (FSLG)

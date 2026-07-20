@@ -27,7 +27,7 @@ bl_info = {
     "location": "File > Import-Export > Raw Faces (.raw) ",
     "description": "Import-Export Raw Faces",
     "warning": "",
-    "wiki_url": "http://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "http://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/Import-Export/Raw_Mesh_IO",
     "category": "Import-Export",
 }

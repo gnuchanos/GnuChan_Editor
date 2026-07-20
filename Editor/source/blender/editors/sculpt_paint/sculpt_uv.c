@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software  Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * The Original Code is Copyright (C) Blender Foundation, 2002-2009
+ * The Original Code is Copyright (C) GnuChanOS, 2002-2009
  * All rights reserved.
  *
  * Contributor(s): Antony Riakiotakis

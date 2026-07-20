@@ -26,7 +26,7 @@
 #                                   (2017)                                     #
 #                                                                              #
 # http://www.co-de-it.com/                                                     #
-# http://wiki.blender.org/index.php/Extensions:2.6/Py/Scripts/Mesh/Tissue      #
+# http://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/Scripts/Mesh/Tissue      #
 #                                                                              #
 # ############################################################################ #
 
@@ -38,7 +38,7 @@ bl_info = {
     "location": "",
     "description": "Tools for Computational Design",
     "warning": "",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/"
                 "Py/Scripts/Mesh/Tissue",
     "tracker_url": "https://plus.google.com/u/0/+AlessandroZomparelli/",
     "category": "Mesh"}

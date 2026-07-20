@@ -26,7 +26,7 @@ bl_info = {
     "blender": (2, 75, 0),
     "location": "View3D > TOOLS > Snap Utilities > snap utilities",
     "description": "Extends Blender Snap controls",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/Py/Scripts/Modeling/Snap_Utils_Line",
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/Scripts/Modeling/Snap_Utils_Line",
     "category": "Mesh"}
 
 import bpy

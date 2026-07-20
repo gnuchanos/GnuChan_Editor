@@ -30,7 +30,7 @@ bl_info = {
     "location": "View3D > Add ",
     "description": "Add Object & Camera extras",
     "warning": "",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6"
                 "/Py/Scripts/Object/Add_Advanced",
     "category": "Object"}
 

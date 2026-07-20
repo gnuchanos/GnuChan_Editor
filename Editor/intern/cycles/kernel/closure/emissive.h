@@ -4,7 +4,7 @@
  * Copyright (c) 2009-2010 Sony Pictures Imageworks Inc., et al.
  * All Rights Reserved.
  *
- * Modifications Copyright 2011, Blender Foundation.
+ * Modifications Copyright 2011, GnuChanOS.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are

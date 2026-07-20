@@ -4,13 +4,13 @@
 # assumes you have dependencies installed already
 
 # See this page for more info:
-#   http://wiki.blender.org/index.php/Dev:Doc/Building_Blender/Linux/Generic_Distro/CMake
+#   http://wiki.gnuchanos.org/index.php/Dev:Doc/Building_Blender/Linux/Generic_Distro/CMake
 
 # grab blender
 mkdir ~/blender-git 
 cd ~/blender-git
 
-git clone http://git.blender.org/blender.git
+git clone http://git.gnuchanos.org/blender.git
 cd blender
 git submodule update --init --recursive
 git submodule foreach git checkout master

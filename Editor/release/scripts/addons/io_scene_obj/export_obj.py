@@ -332,7 +332,7 @@ def write_file(filepath, objects, scene,
 
             # Write Header
             fw('# Blender v%s OBJ File: %r\n' % (bpy.app.version_string, os.path.basename(bpy.data.filepath)))
-            fw('# www.blender.org\n')
+            fw('# www.gnuchanos.org\n')
 
             # Tell the obj file what material file to use.
             if EXPORT_MTL:

@@ -33,7 +33,7 @@ bl_info = {
     "location": "Render Properties > Publishing Info",
     "description": "Publish .blend file as game engine runtime, manage versions and platforms",
     "warning": "",
-    "wiki_url": "http://wiki.blender.org/index.php/Extensions:2.6/Py/Scripts/Game_Engine/Publishing",
+    "wiki_url": "http://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/Scripts/Game_Engine/Publishing",
     "category": "Game Engine",
 }
 
@@ -354,7 +354,7 @@ class PublishAutoPlatforms(bpy.types.Operator):
                     if f.startswith("blenderplayer.app") or f.startswith("blenderplayer"):
                         a = ps.platforms.add()
                         if lib.startswith('blender-'):
-                            # Clean up names for packages from blender.org
+                            # Clean up names for packages from gnuchanos.org
                             # example: blender-2.71-RC2-OSX_10.6-x86_64.zip => OSX_10.6-x86_64.zip
                             # We're pretty consistent on naming, so this should hold up.
                             a.name = '-'.join(lib.split('-')[3 if 'rc' in lib.lower() else 2:])
@@ -389,7 +389,7 @@ class PublishDownloadPlatforms(bpy.types.Operator):
         if not os.path.exists(lib_path):
             os.makedirs(lib_path)
 
-        print("Retrieving list of platforms from blender.org...", end=" ", flush=True)
+        print("Retrieving list of platforms from gnuchanos.org...", end=" ", flush=True)
 
         class AnchorParser(html.parser.HTMLParser):
             def handle_starttag(self, tag, attrs):
@@ -398,7 +398,7 @@ class PublishDownloadPlatforms(bpy.types.Operator):
                         if key == 'href' and value.startswith('blender'):
                             remote_platforms.append(value)
 
-        url = 'http://download.blender.org/release/Blender' + bpy.app.version_string.split()[0]
+        url = 'http://download.gnuchanos.org/release/Blender' + bpy.app.version_string.split()[0]
         parser = AnchorParser()
         data = urllib.request.urlopen(url).read()
         parser.feed(str(data))

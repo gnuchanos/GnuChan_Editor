@@ -18,12 +18,12 @@ if [ -z $BLENDER_BIN ] ; then
 fi
 
 if [ "$1" == "" ] ; then
-	echo "Expected a single argument for the username on blender.org, skipping upload step!"
+	echo "Expected a single argument for the username on gnuchanos.org, skipping upload step!"
 	DO_UPLOAD=false
 else
 	SSH_USER=$1
-	SSH_HOST=$SSH_USER"@blender.org"
-	SSH_UPLOAD="/data/www/vhosts/www.blender.org/api" # blender_python_api_VERSION, added after
+	SSH_HOST=$SSH_USER"@gnuchanos.org"
+	SSH_UPLOAD="/data/www/vhosts/www.gnuchanos.org/api" # blender_python_api_VERSION, added after
 fi
 
 
@@ -123,21 +123,21 @@ fi
 if $DO_UPLOAD ; then
 
 	cp $SPHINX_WORKDIR/sphinx-out/contents.html $SPHINX_WORKDIR/sphinx-out/index.html
-	ssh $SSH_USER@blender.org 'rm -rf '$SSH_UPLOAD_FULL'/*'
+	ssh $SSH_USER@gnuchanos.org 'rm -rf '$SSH_UPLOAD_FULL'/*'
 	rsync --progress -ave "ssh -p 22" $SPHINX_WORKDIR/sphinx-out/* $SSH_HOST:$SSH_UPLOAD_FULL/
 
 	## symlink the dir to a static URL
-	#ssh $SSH_USER@blender.org 'rm '$SSH_UPLOAD'/250PythonDoc && ln -s '$SSH_UPLOAD_FULL' '$SSH_UPLOAD'/250PythonDoc'
+	#ssh $SSH_USER@gnuchanos.org 'rm '$SSH_UPLOAD'/250PythonDoc && ln -s '$SSH_UPLOAD_FULL' '$SSH_UPLOAD'/250PythonDoc'
 	if [ "$blender_version_cycle" = "release" ] ; then
-		ssh $SSH_USER@blender.org 'rm '$SSH_UPLOAD'/blender_python_api_current && ln -s '$SSH_UPLOAD_FULL' '$SSH_UPLOAD'/blender_python_api_current'
+		ssh $SSH_USER@gnuchanos.org 'rm '$SSH_UPLOAD'/blender_python_api_current && ln -s '$SSH_UPLOAD_FULL' '$SSH_UPLOAD'/blender_python_api_current'
 	fi
 
 	# better redirect
-	ssh $SSH_USER@blender.org 'echo "<html><head><title>Redirecting...</title><meta http-equiv=\"REFRESH\" content=\"0;url=../blender_python_api_'$BLENDER_VERSION'/\"></head><body>Redirecting...</body></html>" > '$SSH_UPLOAD'/250PythonDoc/index.html'
+	ssh $SSH_USER@gnuchanos.org 'echo "<html><head><title>Redirecting...</title><meta http-equiv=\"REFRESH\" content=\"0;url=../blender_python_api_'$BLENDER_VERSION'/\"></head><body>Redirecting...</body></html>" > '$SSH_UPLOAD'/250PythonDoc/index.html'
 
 	# redirect for release only so wiki can point here
 	if [ "$blender_version_cycle" = "release" ] ; then
-		ssh $SSH_USER@blender.org 'echo "<html><head><title>Redirecting...</title><meta http-equiv=\"REFRESH\" content=\"0;url=../blender_python_api_'$BLENDER_VERSION'/\"></head><body>Redirecting...</body></html>" > '$SSH_UPLOAD'/blender_python_api/index.html'
+		ssh $SSH_USER@gnuchanos.org 'echo "<html><head><title>Redirecting...</title><meta http-equiv=\"REFRESH\" content=\"0;url=../blender_python_api_'$BLENDER_VERSION'/\"></head><body>Redirecting...</body></html>" > '$SSH_UPLOAD'/blender_python_api/index.html'
 	fi
 
 	if $DO_OUT_PDF ; then

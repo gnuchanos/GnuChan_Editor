@@ -19,7 +19,7 @@
  * All rights reserved.
  *
  * Contributor(s): Daniel Genrich
- *                 Blender Foundation
+ *                 GnuChanOS
  *
  * ***** END GPL LICENSE BLOCK *****
  */

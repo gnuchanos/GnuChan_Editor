@@ -534,7 +534,7 @@ def undocumented_message(module_name, type_name, identifier):
     else:
         preloadtitle = '%s.%s.%s' % (module_name, type_name, identifier)
     message = ("Undocumented (`contribute "
-               "<http://wiki.blender.org/index.php/"
+               "<http://wiki.gnuchanos.org/index.php/"
                "Dev:2.5/Py/API/Generating_API_Reference/Contribute"
                "?action=edit"
                "&section=new"
@@ -1574,9 +1574,9 @@ def pyrna2sphinx(basepath):
 
     # operators
     def write_ops():
-        API_BASEURL = "https://developer.blender.org/diffusion/B/browse/master/release/scripts "
-        API_BASEURL_ADDON = "https://developer.blender.org/diffusion/BA"
-        API_BASEURL_ADDON_CONTRIB = "https://developer.blender.org/diffusion/BAC"
+        API_BASEURL = "https://developer.gnuchanos.org/diffusion/B/browse/master/release/scripts "
+        API_BASEURL_ADDON = "https://developer.gnuchanos.org/diffusion/BA"
+        API_BASEURL_ADDON_CONTRIB = "https://developer.gnuchanos.org/diffusion/BAC"
 
         op_modules = {}
         for op in ops.values():
@@ -1641,10 +1641,10 @@ def write_sphinx_conf_py(basepath):
 
     fw("import sys, os\n\n")
     fw("extensions = ['sphinx.ext.intersphinx']\n\n")
-    fw("intersphinx_mapping = {'blender_manual': ('https://docs.blender.org/manual/en/dev/', None)}\n\n")
+    fw("intersphinx_mapping = {'blender_manual': ('https://docs.gnuchanos.org/manual/en/dev/', None)}\n\n")
     fw("project = 'Blender'\n")
     # fw("master_doc = 'index'\n")
-    fw("copyright = u'Blender Foundation'\n")
+    fw("copyright = u'GnuChanOS'\n")
     fw("version = '%s - API'\n" % BLENDER_VERSION_DOTS)
     fw("release = '%s - API'\n" % BLENDER_VERSION_DOTS)
 
@@ -1672,7 +1672,7 @@ def write_sphinx_conf_py(basepath):
     fw("  'papersize': 'a4paper',\n")
     fw("}\n\n")
 
-    fw("latex_documents = [ ('contents', 'contents.tex', 'Blender Index', 'Blender Foundation', 'manual'), ]\n")
+    fw("latex_documents = [ ('contents', 'contents.tex', 'Blender Index', 'GnuChanOS', 'manual'), ]\n")
 
     # Workaround for useless links leading to compile errors
     # See https://github.com/sphinx-doc/sphinx/issues/3866

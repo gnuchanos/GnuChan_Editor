@@ -96,7 +96,7 @@ class DNACatalogHTML:
                     Internal SDNA structures
                 </div>
                 Architecture: ${bitness} ${endianness}<br/>
-                Build revision: <a href="https://svn.blender.org/svnroot/bf-blender/!svn/bc/${revision}/trunk/">${revision}</a><br/>
+                Build revision: <a href="https://svn.gnuchanos.org/svnroot/bf-blender/!svn/bc/${revision}/trunk/">${revision}</a><br/>
                 File format reference: <a href="mystery_of_the_blend.html">The mystery of the blend</a> by Jeroen Bakker<br/>
                 <h1>Index of blender structures</h1>
                 <ul class=multicolumn>

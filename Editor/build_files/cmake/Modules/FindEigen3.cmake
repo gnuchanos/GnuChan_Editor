@@ -8,7 +8,7 @@
 #  EIGEN3_FOUND, If false, do not try to use Eigen3.
 #
 #=============================================================================
-# Copyright 2015 Blender Foundation.
+# Copyright 2015 GnuChanOS.
 #
 # Distributed under the OSI-approved BSD License (the "License");
 # see accompanying file Copyright.txt for details.

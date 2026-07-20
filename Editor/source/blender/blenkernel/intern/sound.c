@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * The Original Code is Copyright (C) 2001-2002 by NaN Holding BV.
+ * The Original Code is Copyright (C) 2026 by GnuChanOS.
  * All rights reserved.
  *
  * The Original Code is: all of this file.
@@ -246,8 +246,8 @@ void BKE_sound_init(struct Main *bmain)
 	if (specs.channels <= AUD_CHANNELS_INVALID)
 		specs.channels = AUD_CHANNELS_STEREO;
 
-	if (!(sound_device = AUD_init(device_name, specs, buffersize, "Blender")))
-		sound_device = AUD_init("Null", specs, buffersize, "Blender");
+	if (!(sound_device = AUD_init(device_name, specs, buffersize, "GnuChan Editor")))
+		sound_device = AUD_init("Null", specs, buffersize, "GnuChan Editor");
 
 	BKE_sound_init_main(bmain);
 }

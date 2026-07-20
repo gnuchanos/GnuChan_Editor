@@ -16,7 +16,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * Contributor(s): Daniel Genrich
- *                 Blender Foundation
+ *                 GnuChanOS
  *
  * ***** END GPL LICENSE BLOCK *****
  */

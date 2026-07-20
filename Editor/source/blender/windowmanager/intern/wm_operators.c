@@ -15,11 +15,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * The Original Code is Copyright (C) 2007 Blender Foundation.
+ * The Original Code is Copyright (C) 2007 GnuChanOS.
  * All rights reserved.
  *
  * 
- * Contributor(s): Blender Foundation
+ * Contributor(s): GnuChanOS
  *
  * ***** END GPL LICENSE BLOCK *****
  */
@@ -1868,24 +1868,24 @@ static uiBlock *wm_block_create_splash(bContext *C, ARegion *ar, void *UNUSED(ar
 	uiItemL(col, IFACE_("Links"), ICON_NONE);
 #if 0
 	uiItemStringO(col, IFACE_("Support an Open Animation Movie"), ICON_URL, "WM_OT_url_open", "url",
-	              "https://cloud.blender.org/join");
+	              "https://cloud.gnuchanos.org/join");
 #endif
 	uiItemStringO(col, IFACE_("Donations"), ICON_URL, "WM_OT_url_open", "url",
-	              "http://www.blender.org/foundation/donation-payment/");
+	              "http://www.gnuchanos.org/foundation/donation-payment/");
 	uiItemStringO(col, IFACE_("Credits"), ICON_URL, "WM_OT_url_open", "url",
-	              "http://www.blender.org/about/credits/");
-	BLI_snprintf(url, sizeof(url), "http://wiki.blender.org/index.php/Dev:Ref/Release_Notes/%d.%d",
+	              "http://www.gnuchanos.org/about/credits/");
+	BLI_snprintf(url, sizeof(url), "http://wiki.gnuchanos.org/index.php/Dev:Ref/Release_Notes/%d.%d",
 	             BLENDER_VERSION / 100, BLENDER_VERSION % 100);
 	uiItemStringO(col, IFACE_("Release Log"), ICON_URL, "WM_OT_url_open", "url", url);
 	uiItemStringO(col, IFACE_("Manual"), ICON_URL, "WM_OT_url_open", "url",
-	              "https://docs.blender.org/manual/en/dev/");
-	uiItemStringO(col, IFACE_("Blender Website"), ICON_URL, "WM_OT_url_open", "url", "http://www.blender.org");
+	              "https://docs.gnuchanos.org/manual/en/dev/");
+	uiItemStringO(col, IFACE_("Blender Website"), ICON_URL, "WM_OT_url_open", "url", "http://www.gnuchanos.org");
 	if (STREQ(STRINGIFY(BLENDER_VERSION_CYCLE), "release")) {
-		BLI_snprintf(url, sizeof(url), "https://docs.blender.org/api/%d.%d"STRINGIFY(BLENDER_VERSION_CHAR),
+		BLI_snprintf(url, sizeof(url), "https://docs.gnuchanos.org/api/%d.%d"STRINGIFY(BLENDER_VERSION_CHAR),
 		             BLENDER_VERSION / 100, BLENDER_VERSION % 100);
 	}
 	else {
-		BLI_snprintf(url, sizeof(url), "https://docs.blender.org/api/master");
+		BLI_snprintf(url, sizeof(url), "https://docs.gnuchanos.org/api/master");
 	}
 	uiItemStringO(col, IFACE_("Python API Reference"), ICON_URL, "WM_OT_url_open", "url", url);
 	uiItemL(col, "", ICON_NONE);

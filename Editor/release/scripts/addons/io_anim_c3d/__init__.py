@@ -29,7 +29,7 @@ bl_info = {
     "blender": (2, 74, 1),
     "location": "File > Import",
     "description": "Imports C3D Graphics Lab Motion Capture files",
-    "wiki_url": "http://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "http://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/Import-Export/C3D_Importer",
     "category": 'Import-Export',
 }

@@ -3,7 +3,7 @@
 __version__ = "v1.35 - 2010.06.23"
 __author__ = "Stani Michiels(Stani), Remigiusz Fiedler(migius)"
 __license__ = "GPL"
-__url__ = "http://wiki.blender.org/index.php/Extensions:2.4/Py/Scripts/Export/DXF"
+__url__ = "http://wiki.gnuchanos.org/index.php/Extensions:2.4/Py/Scripts/Export/DXF"
 __bpydoc__ ="""The library to export geometry data to DXF format r12 version.
 
 Copyright %s

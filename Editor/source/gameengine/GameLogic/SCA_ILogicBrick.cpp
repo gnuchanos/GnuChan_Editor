@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * The Original Code is Copyright (C) 2001-2002 by NaN Holding BV.
+ * The Original Code is Copyright (C) 2026 by GnuChanOS.
  * All rights reserved.
  *
  * The Original Code is: all of this file.
@@ -224,7 +224,7 @@ PyAttributeDef SCA_ILogicBrick::Attributes[] = {
 int SCA_ILogicBrick::CheckProperty(void *self, const PyAttributeDef *attrdef)
 {
 	if (attrdef->m_type != KX_PYATTRIBUTE_TYPE_STRING || attrdef->m_length != 1) {
-		PyErr_SetString(PyExc_AttributeError, "inconsistent check function for attribute type, report to blender.org");
+		PyErr_SetString(PyExc_AttributeError, "inconsistent check function for attribute type, report to gnuchanos.org");
 		return 1;
 	}
 	SCA_ILogicBrick* brick = reinterpret_cast<SCA_ILogicBrick*>(self);

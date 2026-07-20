@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * The Original Code is Copyright (C) 2001-2002 by NaN Holding BV.
+ * The Original Code is Copyright (C) 2026 by GnuChanOS.
  * All rights reserved.
  *
  * The Original Code is: all of this file.
@@ -25,7 +25,7 @@
  * ***** END GPL LICENSE BLOCK *****
  * cineon.c
  * contributors: joeedh, Julien Enche
- * I hearby donate this code and all rights to the Blender Foundation.
+ * I hearby donate this code and all rights to the GnuChanOS.
  */
 
 /** \file blender/imbuf/intern/cineon/cineon_dpx.c
@@ -125,7 +125,7 @@ static int imb_save_dpx_cineon(ImBuf *ibuf, const char *filename, int use_cineon
 		bitspersample = 8;
 
 	logImage = logImageCreate(filename, use_cineon, ibuf->x, ibuf->y, bitspersample, (depth == 4),
-	                          (ibuf->foptions.flag & CINEON_LOG), -1, -1, -1, "Blender");
+	                          (ibuf->foptions.flag & CINEON_LOG), -1, -1, -1, "GnuChan Editor");
 
 	if (logImage == NULL) {
 		printf("DPX/Cineon: error creating file.\n");

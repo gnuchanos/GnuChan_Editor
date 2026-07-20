@@ -15,11 +15,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * The Original Code is Copyright (C) 2007 Blender Foundation but based 
+ * The Original Code is Copyright (C) 2007 GnuChanOS but based 
  * on ghostwinlay.c (C) 2001-2002 by NaN Holding BV
  * All rights reserved.
  *
- * Contributor(s): Blender Foundation, 2008
+ * Contributor(s): GnuChanOS, 2008
  *
  * ***** END GPL LICENSE BLOCK *****
  */
@@ -365,7 +365,7 @@ void wm_window_title(wmWindowManager *wm, wmWindow *win)
 			GHOST_SetTitle(win->ghostwin, str);
 		}
 		else
-			GHOST_SetTitle(win->ghostwin, "Blender");
+			GHOST_SetTitle(win->ghostwin, "GnuChan Editor");
 
 		/* Informs GHOST of unsaved changes, to set window modified visual indicator (MAC OS X)
 		 * and to give hint of unsaved changes for a user warning mechanism
@@ -572,7 +572,7 @@ void wm_window_ghostwindows_ensure(wmWindowManager *wm)
 				win->cursor = CURSOR_STD;
 			}
 
-			wm_window_ghostwindow_add(wm, "Blender", win);
+			wm_window_ghostwindow_add(wm, "GnuChan Editor", win);
 		}
 		/* happens after fileread */
 		if (win->eventstate == NULL)
@@ -741,7 +741,7 @@ wmWindow *WM_window_open_temp(bContext *C, int x, int y, int sizex, int sizey, i
 	else if (sa->spacetype == SPACE_FILE)
 		title = IFACE_("Blender File View");
 	else
-		title = "Blender";
+		title = "GnuChan Editor";
 
 	if (win->ghostwin) {
 		GHOST_SetTitle(win->ghostwin, title);

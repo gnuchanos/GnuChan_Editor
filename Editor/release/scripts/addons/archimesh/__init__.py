@@ -32,7 +32,7 @@ bl_info = {
     "version": (1, 1, 4),
     "blender": (2, 6, 8),
     "description": "Generate rooms, doors, windows, and other architecture objects",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/Py/Scripts/Add_Mesh/Archimesh",
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/Scripts/Add_Mesh/Archimesh",
     "category": "Add Mesh"
     }
 

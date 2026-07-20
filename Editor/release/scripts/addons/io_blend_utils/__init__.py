@@ -24,7 +24,7 @@ bl_info = {
     "location": "File > External Data > Blend Utils",
     "description": "Utility for packing blend files",
     "warning": "",
-    "wiki_url": "http://wiki.blender.org/index.php/Extensions:2.6/Py/Scripts/Import-Export/BlendFile_Utils",
+    "wiki_url": "http://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/Scripts/Import-Export/BlendFile_Utils",
     "support": 'OFFICIAL',
     "category": "Import-Export",
 }

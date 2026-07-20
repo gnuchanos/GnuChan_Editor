@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * Contributor(s): Blender Foundation (2008), Joshua Leung
+ * Contributor(s): GnuChanOS (2008), Joshua Leung
  *
  * ***** END GPL LICENSE BLOCK *****
  */
@@ -984,7 +984,7 @@ static void rna_def_armature(BlenderRNA *brna)
 		{0, NULL, 0, NULL, NULL}
 	};
 	static EnumPropertyItem prop_vdeformer[] = {
-		{ARM_VDEF_BLENDER, "BLENDER", 0, "Blender", "Use Blender's armature vertex deformation"},
+		{ARM_VDEF_BLENDER, "BLENDER", 0, "GnuChan Editor", "Use Blender's armature vertex deformation"},
 		{ARM_VDEF_BGE_CPU, "BGE_CPU", 0, "BGE", "Use vertex deformation code optimized for the BGE"},
 		{0, NULL, 0, NULL, NULL}
 	};

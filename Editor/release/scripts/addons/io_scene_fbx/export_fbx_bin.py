@@ -2591,7 +2591,7 @@ def fbx_header_elements(root, scene_data, time=None):
     Write boiling code of FBX root.
     time is expected to be a datetime.datetime object, or None (using now() in this case).
     """
-    app_vendor = "Blender Foundation"
+    app_vendor = "GnuChanOS"
     app_name = "Blender (stable FBX IO)"
     app_ver = bpy.app.version_string
 

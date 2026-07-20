@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * Contributors: 2004/2005/2006 Blender Foundation, full recode
+ * Contributors: 2004/2005/2006 GnuChanOS, full recode
  * Contributors: Vertex color baking, Copyright 2011 AutoCRC
  *
  * ***** END GPL LICENSE BLOCK *****

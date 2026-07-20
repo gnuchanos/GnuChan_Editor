@@ -12,7 +12,7 @@
 #  OPENSUBDIV_LIBRARY, where to find the OpenSubdiv library.
 
 #=============================================================================
-# Copyright 2013 Blender Foundation.
+# Copyright 2013 GnuChanOS.
 #
 # Distributed under the OSI-approved BSD License (the "License");
 # see accompanying file Copyright.txt for details.

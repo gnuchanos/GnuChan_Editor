@@ -41,7 +41,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * The Original Code is Copyright (C) 2016 Blender Foundation.
+ * The Original Code is Copyright (C) 2016 GnuChanOS.
  * All rights reserved.
  *
  * The Original Code is: adapted from jemalloc.
@@ -53,7 +53,7 @@
  * \file atomic_ops.h
  * \ingroup Atomic
  *
- * \author Copyright (C) 2016 Blender Foundation, adapted from jemalloc.
+ * \author Copyright (C) 2016 GnuChanOS, adapted from jemalloc.
  * \brief Provides wrapper around system-specific atomic primitives, and some extensions (faked-atomic operations
  *        over float numbers).
  */

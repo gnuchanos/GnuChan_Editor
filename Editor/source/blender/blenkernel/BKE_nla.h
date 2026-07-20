@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * The Original Code is Copyright (C) 2009 Blender Foundation, Joshua Leung
+ * The Original Code is Copyright (C) 2009 GnuChanOS, Joshua Leung
  * All rights reserved.
  *
  * The Original Code is: all of this file.

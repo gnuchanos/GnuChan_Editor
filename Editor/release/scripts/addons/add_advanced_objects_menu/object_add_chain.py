@@ -24,7 +24,7 @@ bl_info = {
     "location": "Toolshelf > Create Tab",
     "description": "Adds Chain with curve guide for easy creation",
     "warning": "",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/Object/Add_Chain",
     "category": "Object",
 }

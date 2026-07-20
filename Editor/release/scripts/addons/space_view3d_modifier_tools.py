@@ -25,7 +25,7 @@ bl_info = {
     "location": "Properties > Modifiers",
     "description": "Modifiers Specials Show/Hide/Apply Selected",
     "warning": "",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6"
                 "/Py/Scripts/3D_interaction/modifier_tools",
     "category": "3D View"
     }

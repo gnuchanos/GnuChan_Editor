@@ -145,7 +145,7 @@ static OArchive create_archive(std::ostream *ostream,
                                Alembic::Abc::MetaData &md,
                                bool ogawa)
 {
-	md.set(Alembic::Abc::kApplicationNameKey, "Blender");
+	md.set(Alembic::Abc::kApplicationNameKey, "GnuChan Editor");
 	md.set(Alembic::Abc::kUserDescriptionKey, scene_name);
 	md.set("blender_version", versionstr);
 

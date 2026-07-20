@@ -1,5 +1,5 @@
 #
-# Copyright 2011-2013 Blender Foundation
+# Copyright 2011-2013 GnuChanOS
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ bl_info = {
     "location": "Info header, render engine menu",
     "description": "Cycles Render Engine integration",
     "warning": "",
-    "wiki_url": "https://docs.blender.org/manual/en/dev/render/cycles/",
+    "wiki_url": "https://docs.gnuchanos.org/manual/en/dev/render/cycles/",
     "tracker_url": "",
     "support": 'OFFICIAL',
     "category": "Render"}

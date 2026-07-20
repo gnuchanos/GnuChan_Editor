@@ -24,7 +24,7 @@ bl_info = {
     "location": "Text Editor > Properties > API Navigator Panel",
     "description": "Allows exploration of the python api via the user interface",
     "warning": "",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/Text_Editor/API_Navigator",
     "category": "Development",
 }

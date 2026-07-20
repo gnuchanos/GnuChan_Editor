@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * The Original Code is Copyright (C) 2012 by Blender Foundation.
+ * The Original Code is Copyright (C) 2012 by GnuChanOS.
  * All rights reserved.
  *
  * The Original Code is: all of this file.
@@ -40,11 +40,11 @@
  *                            INTERPOLATIONS
  *
  * Reference and docs:
- * http://wiki.blender.org/index.php/User:Damiles#Interpolations_Algorithms
+ * http://wiki.gnuchanos.org/index.php/User:Damiles#Interpolations_Algorithms
  ***************************************************************************/
 
 /* BICUBIC Interpolation functions
- *  More info: http://wiki.blender.org/index.php/User:Damiles#Bicubic_pixel_interpolation
+ *  More info: http://wiki.gnuchanos.org/index.php/User:Damiles#Bicubic_pixel_interpolation
  * function assumes out to be zero'ed, only does RGBA */
 
 static float P(float k)

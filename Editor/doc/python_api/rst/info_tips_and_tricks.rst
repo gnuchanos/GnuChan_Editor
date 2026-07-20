@@ -208,7 +208,7 @@ Examples include:
 Bundled Python & Extensions
 ===========================
 
-The Blender releases distributed from blender.org include a complete Python installation on all platforms,
+The Blender releases distributed from gnuchanos.org include a complete Python installation on all platforms,
 this has the disadvantage that any extensions you have installed in your systems Python wont be found by Blender.
 
 There are 2 ways around this:
@@ -306,7 +306,7 @@ Advantages include:
 This is marked advanced because to run Blender as a Python module requires a special build option.
 
 For instructions on building see
-`Building Blender as a Python module <https://wiki.blender.org/index.php/User:Ideasman42/BlenderAsPyModule>`_
+`Building Blender as a Python module <https://wiki.gnuchanos.org/index.php/User:Ideasman42/BlenderAsPyModule>`_
 
 
 Python Safety (Build Option)

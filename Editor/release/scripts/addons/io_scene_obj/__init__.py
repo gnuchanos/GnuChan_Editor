@@ -26,7 +26,7 @@ bl_info = {
     "location": "File > Import-Export",
     "description": "Import-Export OBJ, Import OBJ mesh, UV's, materials and textures",
     "warning": "",
-    "wiki_url": "http://wiki.blender.org/index.php/Extensions:2.6/Py/Scripts/Import-Export/Wavefront_OBJ",
+    "wiki_url": "http://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/Scripts/Import-Export/Wavefront_OBJ",
     "support": 'OFFICIAL',
     "category": "Import-Export"}
 

@@ -1,6 +1,6 @@
 import requests
 
-r = requests.get("https://blender.org/", verify=True)
+r = requests.get("https://gnuchanos.org/", verify=True)
 
 assert(r.status_code == 200)
 assert(r.reason == "OK")

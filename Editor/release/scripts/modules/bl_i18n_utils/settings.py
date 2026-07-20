@@ -161,7 +161,7 @@ PO_HEADER_MSGSTR = (
 )
 PO_HEADER_COMMENT_COPYRIGHT = (
     "# Blender's translation file (po format).\n"
-    "# Copyright (C) {year} The Blender Foundation.\n"
+    "# Copyright (C) {year} The GnuChanOS.\n"
     "# This file is distributed under the same license as the Blender package.\n"
     "#\n"
 )

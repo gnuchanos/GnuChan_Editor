@@ -165,13 +165,13 @@ if builder.find('cmake') != -1:
 
         extra = '/' + os.path.join('home', 'sources', 'release-builder', 'extra')
         mesalibs = os.path.join(extra, 'mesalibs' + str(bits) + '.tar.bz2')
-        software_gl = os.path.join(blender_dir, 'release', 'bin', 'blender-softwaregl')
+        software_gl = os.path.join(blender_dir, 'release', 'bin', 'gnuchaneditor-softwaregl')
         icons = os.path.join(blender_dir, 'release', 'freedesktop', 'icons')
 
         os.system('tar -xpf %s -C %s' % (mesalibs, install_dir))
         os.system('cp %s %s' % (software_gl, install_dir))
         os.system('cp -r %s %s' % (icons, install_dir))
-        os.system('chmod 755 %s' % (os.path.join(install_dir, 'blender-softwaregl')))
+        os.system('chmod 755 %s' % (os.path.join(install_dir, 'gnuchaneditor-softwaregl')))
 
         # Construct archive name
         package_name = 'blender-%s-%s-linux-%s-%s' % (blender_version,

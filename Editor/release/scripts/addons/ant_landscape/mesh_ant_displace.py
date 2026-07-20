@@ -197,7 +197,7 @@ class AntMeshDisplace(bpy.types.Operator):
             default="0",
             description="Noise basis algorithms",
             items = [
-                ("0", "Blender", "Blender default noise", 0),
+                ("0", "GnuChan Editor", "Blender default noise", 0),
                 ("1", "Perlin", "Perlin noise", 1),
                 ("2", "New Perlin", "New Perlin noise", 2),
                 ("3", "Voronoi F1", "Voronoi F1", 3),
@@ -213,7 +213,7 @@ class AntMeshDisplace(bpy.types.Operator):
             default="0",
             description="VLNoise basis algorithms",
             items = [
-                ("0", "Blender", "Blender default noise", 0),
+                ("0", "GnuChan Editor", "Blender default noise", 0),
                 ("1", "Perlin", "Perlin noise", 1),
                 ("2", "New Perlin", "New Perlin noise", 2),
                 ("3", "Voronoi F1", "Voronoi F1", 3),

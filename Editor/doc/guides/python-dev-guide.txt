@@ -55,7 +55,7 @@ counting.  The first doc has a good discussion about them.
 
 - C knowledge is also necessary, of course, use your favorite resource.
 
-- The Blender 2.25 API documentation ( www.blender.org ) is, along with
+- The Blender 2.25 API documentation ( www.gnuchanos.org ) is, along with
 the source, our basic API ref.
 
 III - Directories
@@ -163,8 +163,8 @@ If you want to help exppython and in the process possibly learn more about
 embedding, the Python/C API and Blender internals, there's this mailing list:
 
 Bf-python mailing list
-Bf-python@blender.org
-http://www.blender.org/mailman/listinfo/bf-python
+Bf-python@gnuchanos.org
+http://www.gnuchanos.org/mailman/listinfo/bf-python
 
 There you can ask what hasn't been done yet, get help, make suggestions for 
 new features we should consider, send bug reports, etc.

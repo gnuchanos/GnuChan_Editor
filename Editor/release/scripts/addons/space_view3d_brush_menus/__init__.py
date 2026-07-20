@@ -27,7 +27,7 @@ bl_info = {
     "blender": (2, 78, 0),
     "location": "Alt V in Sculpt/Paint Modes",
     "warning": '',
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/3D_interaction/Advanced_UI_Menus",
     "category": "3D View"}
 

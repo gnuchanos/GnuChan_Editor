@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2013 Blender Foundation
+ * Copyright 2011-2013 GnuChanOS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -164,7 +164,7 @@ public:
 	{
 		if(first_error) {
 			fprintf(stderr, "\nRefer to the Cycles GPU rendering documentation for possible solutions:\n");
-			fprintf(stderr, "https://docs.blender.org/manual/en/dev/render/cycles/gpu_rendering.html\n\n");
+			fprintf(stderr, "https://docs.gnuchanos.org/manual/en/dev/render/cycles/gpu_rendering.html\n\n");
 			first_error = false;
 		}
 	}

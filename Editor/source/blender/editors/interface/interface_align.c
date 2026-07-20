@@ -15,10 +15,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * The Original Code is Copyright (C) 2015 by Blender Foundation.
+ * The Original Code is Copyright (C) 2015 by GnuChanOS.
  * All rights reserved.
  *
- * Contributor(s): Blender Foundation 2002-2008, full recode.
+ * Contributor(s): GnuChanOS 2002-2008, full recode.
  *                 Bastien Montagne 2015, full recode.
  *
  * ***** END GPL LICENSE BLOCK *****

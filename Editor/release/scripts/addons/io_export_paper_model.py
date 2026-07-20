@@ -25,9 +25,9 @@ bl_info = {
     "warning": "",
     "description": "Export printable net of the active mesh",
     "category": "Import-Export",
-    "wiki_url": "http://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "http://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/Import-Export/Paper_Model",
-    "tracker_url": "https://developer.blender.org/T38441"
+    "tracker_url": "https://developer.gnuchanos.org/T38441"
 }
 
 # TODO:

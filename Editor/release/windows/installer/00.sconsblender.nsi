@@ -67,11 +67,11 @@ UninstallIcon "[RELDIR]\00.installer.ico"
 Caption "Blender [VERSION] Installer"
 OutFile "[DISTDIR]\..\blender-[VERSION]-windows[BITNESS].exe"
 InstallDir $INSTDIR ; $INSTDIR is set inside .onInit
-BrandingText "Blender Foundation | http://www.blender.org"
+BrandingText "GnuChanOS | http://www.gnuchanos.org"
 ComponentText "This will install Blender [VERSION] on your computer."
 
-VIAddVersionKey "ProductName" "Blender"
-VIAddVersionKey "CompanyName" "http://www.blender.org"
+VIAddVersionKey "ProductName" "GnuChan Editor"
+VIAddVersionKey "CompanyName" "http://www.gnuchanos.org"
 VIAddVersionKey "FileDescription" "Free open source 3D content creation suite."
 VIAddVersionKey "FileVersion" "[SHORTVERSION].0.0"
 
@@ -97,18 +97,18 @@ Function .onInit
 
   ${If} ${RunningX64}
     ${If} "[BITNESS]" == "32"
-      StrCpy $INSTDIR "$PROGRAMFILES32\Blender Foundation\Blender" ; Can't use InstallDir inside Section
+      StrCpy $INSTDIR "$PROGRAMFILES32\GnuChanOS\Blender" ; Can't use InstallDir inside Section
     ${ElseIf} "[BITNESS]" == "64"
-      StrCpy $INSTDIR "$PROGRAMFILES64\Blender Foundation\Blender"
+      StrCpy $INSTDIR "$PROGRAMFILES64\GnuChanOS\Blender"
     ${EndIf}
   ${Else}
-    StrCpy $INSTDIR "$PROGRAMFILES\Blender Foundation\Blender"
+    StrCpy $INSTDIR "$PROGRAMFILES\GnuChanOS\Blender"
   ${EndIf}
 FunctionEnd
 
 Function un.onInit
   SetShellVarContext current
-  StrCpy $BLENDERCONFIG "$APPDATA\Blender Foundation\Blender"
+  StrCpy $BLENDERCONFIG "$APPDATA\GnuChanOS\Blender"
   SetShellVarContext all
 FunctionEnd
 
@@ -160,9 +160,9 @@ Section "Blender [VERSION] (required)" InstallFiles
   WriteRegStr HKLM "SOFTWARE\BlenderFoundation" "Install_Dir" "$INSTDIR"
   WriteRegStr HKLM "SOFTWARE\BlenderFoundation" "ShortVersion" "[SHORTVERSION]"
   ; Write the uninstall keys for Windows
-  WriteRegStr   HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Blender" "DisplayName" "Blender"
-  WriteRegStr   HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Blender" "Publisher" "Blender Foundation"
-  WriteRegStr   HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Blender" "URLInfoAbout" "http://www.blender.org/"
+  WriteRegStr   HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Blender" "DisplayName" "GnuChan Editor"
+  WriteRegStr   HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Blender" "Publisher" "GnuChanOS"
+  WriteRegStr   HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Blender" "URLInfoAbout" "http://www.gnuchanos.org/"
   WriteRegStr   HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Blender" "DisplayVersion" "[VERSION]"
   WriteRegStr   HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Blender" "DisplayIcon" "$INSTDIR\blender.exe"
   WriteRegStr   HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Blender" "UninstallString" '"$INSTDIR\uninstall.exe"'
@@ -174,12 +174,12 @@ SectionEnd
 
 Section "Add Start Menu Shortcuts" StartMenu
   SetShellVarContext all
-  CreateDirectory "$SMPROGRAMS\Blender Foundation\Blender\"
-  CreateShortCut "$SMPROGRAMS\Blender Foundation\Blender\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
-  CreateShortCut "$SMPROGRAMS\Blender Foundation\Blender\Blender.lnk" "$INSTDIR\Blender.exe" "" "$INSTDIR\blender.exe" 0
-  CreateShortCut "$SMPROGRAMS\Blender Foundation\Blender\Readme.lnk" "$INSTDIR\readme.html" "" "" 0
-  CreateShortCut "$SMPROGRAMS\Blender Foundation\Blender\Copyright.lnk" "$INSTDIR\Copyright.txt" "" "$INSTDIR\copyright.txt" 0
-  CreateShortCut "$SMPROGRAMS\Blender Foundation\Blender\GPL-license.lnk" "$INSTDIR\GPL-license.txt" "" "$INSTDIR\GPL-license.txt" 0
+  CreateDirectory "$SMPROGRAMS\GnuChanOS\Blender\"
+  CreateShortCut "$SMPROGRAMS\GnuChanOS\Blender\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
+  CreateShortCut "$SMPROGRAMS\GnuChanOS\Blender\Blender.lnk" "$INSTDIR\Blender.exe" "" "$INSTDIR\blender.exe" 0
+  CreateShortCut "$SMPROGRAMS\GnuChanOS\Blender\Readme.lnk" "$INSTDIR\readme.html" "" "" 0
+  CreateShortCut "$SMPROGRAMS\GnuChanOS\Blender\Copyright.lnk" "$INSTDIR\Copyright.txt" "" "$INSTDIR\copyright.txt" 0
+  CreateShortCut "$SMPROGRAMS\GnuChanOS\Blender\GPL-license.lnk" "$INSTDIR\GPL-license.txt" "" "$INSTDIR\GPL-license.txt" 0
   System::Call 'shell32.dll::SHChangeNotify(i, i, i, i) v (0x08000000, 0, 0, 0)' ; refresh icons
 SectionEnd
 
@@ -222,11 +222,11 @@ Section "Uninstall"
   ; Remove install directory if it's empty
   RMDir $INSTDIR
   ; Remove shortcuts
-  Delete "$SMPROGRAMS\Blender Foundation\Blender\*.*"
+  Delete "$SMPROGRAMS\GnuChanOS\Blender\*.*"
   Delete "$DESKTOP\Blender.lnk"
   ; Remove all link related directories and files
-  RMDir "$SMPROGRAMS\Blender Foundation\Blender"
-  RMDir "$SMPROGRAMS\Blender Foundation"
+  RMDir "$SMPROGRAMS\GnuChanOS\Blender"
+  RMDir "$SMPROGRAMS\GnuChanOS"
   
   System::Call 'shell32.dll::SHChangeNotify(i, i, i, i) v (0x08000000, 0, 0, 0)' ; Refresh icons
 SectionEnd

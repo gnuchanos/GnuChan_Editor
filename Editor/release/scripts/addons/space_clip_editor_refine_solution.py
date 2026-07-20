@@ -28,7 +28,7 @@ bl_info = {
     "description": "Refine motion solution by setting track weight according"
                    " to reprojection error",
     "warning": "",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/Py/Scripts/"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/Scripts/"
                 "Motion_Tracking/Refine_Track",
     "category": "Motion Tracking",
 }

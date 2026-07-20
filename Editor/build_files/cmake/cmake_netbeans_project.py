@@ -76,7 +76,7 @@ def create_nb_project_main():
         includes.sort()
 
         if 0:
-            PROJECT_NAME = "Blender"
+            PROJECT_NAME = "GnuChan Editor"
         else:
             # be tricky, get the project name from git if we can!
             PROJECT_NAME = project_name_get()

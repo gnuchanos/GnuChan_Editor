@@ -1297,16 +1297,16 @@ class USERPREF_MT_addons_online_resources(Menu):
 
         layout.operator(
                 "wm.url_open", text="Add-ons Catalog", icon='URL',
-                ).url = "http://wiki.blender.org/index.php/Extensions:2.6/Py/Scripts"
+                ).url = "http://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/Scripts"
 
         layout.separator()
 
         layout.operator(
                 "wm.url_open", text="How to share your add-on", icon='URL',
-                ).url = "http://wiki.blender.org/index.php/Dev:Py/Sharing"
+                ).url = "http://wiki.gnuchanos.org/index.php/Dev:Py/Sharing"
         layout.operator(
                 "wm.url_open", text="Add-on Guidelines", icon='URL',
-                ).url = "http://wiki.blender.org/index.php/Dev:2.5/Py/Scripts/Guidelines/Addons"
+                ).url = "http://wiki.gnuchanos.org/index.php/Dev:2.5/Py/Scripts/Guidelines/Addons"
         layout.operator(
                 "wm.url_open", text="API Concepts", icon='URL',
                 ).url = bpy.types.WM_OT_doc_view._prefix + "/info_quickstart.html"
@@ -1498,7 +1498,7 @@ class USERPREF_PT_addons(Panel):
                             split.operator("wm.url_open", text="Documentation", icon='HELP').url = info["wiki_url"]
                         split.operator("wm.url_open", text="Report a Bug", icon='URL').url = info.get(
                                 "tracker_url",
-                                "https://developer.blender.org/maniphest/task/edit/form/2")
+                                "https://developer.gnuchanos.org/maniphest/task/edit/form/2")
                         if user_addon:
                             split.operator("wm.addon_remove", text="Remove", icon='CANCEL').module = mod.__name__
 

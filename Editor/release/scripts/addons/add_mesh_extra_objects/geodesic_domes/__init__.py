@@ -24,7 +24,7 @@ bl_info = {
     "location": "Toolshelf > Create Tab",
     "description": "Create geodesic dome type objects.",
     "warning": "",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/Py/Scripts/Modeling/Geodesic_Domes",
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/Scripts/Modeling/Geodesic_Domes",
     "tracker_url": "",
     "category": "Mesh"}
 

@@ -24,7 +24,7 @@ bl_info = {
     "location": "Node Editor Toolbar or Ctrl-Space",
     "description": "Various tools to enhance and speed up node-based workflow",
     "warning": "",
-    "wiki_url": "http://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "http://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/Nodes/Nodes_Efficiency_Tools",
     "category": "Node",
 }

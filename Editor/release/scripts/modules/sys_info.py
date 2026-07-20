@@ -51,7 +51,7 @@ def write_sysinfo(filepath):
                 return "\n%s:\n%s" % (text, lilies)
 
             # build info
-            output.write(title("Blender"))
+            output.write(title("GnuChan Editor"))
             output.write(
                 "version: %s, branch: %s, commit date: %s %s, hash: %s, type: %s\n" %
                 (bpy.app.version_string,

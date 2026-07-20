@@ -1,6 +1,6 @@
-Blender Foundation Members 
+GnuChanOS Members 
 
-Special thanks to the following people, who have supported the Blender Foundation
+Special thanks to the following people, who have supported the GnuChanOS
 by donating at least USD 50 to pay for opening the Blender sources: 
 (in chronological order):
 

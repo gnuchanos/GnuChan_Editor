@@ -28,7 +28,7 @@ bl_info = {
     "location": "View3D > Toolbar and View3D > Specials (W-key)",
     "warning": "",
     "description": "CAD style edge manipulation tools",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/Modeling/EdgeTools",
     "category": "Mesh"}
 
@@ -778,7 +778,7 @@ class Spline(Operator):
 
     alg = EnumProperty(
             name="Spline Algorithm",
-            items=[('Blender', "Blender", "Interpolation provided through mathutils.geometry"),
+            items=[('Blender', "GnuChan Editor", "Interpolation provided through mathutils.geometry"),
                     ('Hermite', "C-Spline", "C-spline interpolation"),
                     ('Bezier', "Bezier", "Bezier interpolation"),
                     ('B-Spline', "B-Spline", "B-Spline interpolation")],

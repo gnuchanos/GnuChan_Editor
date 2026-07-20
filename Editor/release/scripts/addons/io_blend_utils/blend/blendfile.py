@@ -17,7 +17,7 @@
 # ***** END GPL LICENCE BLOCK *****
 #
 # (c) 2009, At Mind B.V. - Jeroen Bakker
-# (c) 2014, Blender Foundation - Campbell Barton
+# (c) 2014, GnuChanOS - Campbell Barton
 
 import gzip
 import logging

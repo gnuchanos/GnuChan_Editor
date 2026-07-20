@@ -25,7 +25,7 @@ bl_info = {
     "blender": (2, 63, 0),
     "location": "View3D > Ctrl-C",
     "description": "Copy Attributes Menu from Blender 2.4",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/3D_interaction/Copy_Attributes_Menu",
     "category": "3D View",
 }

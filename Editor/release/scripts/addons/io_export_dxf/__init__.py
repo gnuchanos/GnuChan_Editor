@@ -24,7 +24,7 @@ bl_info = {
     "location": "File > Export > Autodesk (.dxf)",
     "description": "The script exports Blender geometry to DXF format r12 version.",
     "warning": "Under construction! Visit Wiki for details.",
-    "wiki_url": "http://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "http://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
         "Scripts/Import-Export/DXF_Exporter",
     "category": "Import-Export",
 }

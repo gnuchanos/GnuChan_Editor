@@ -234,7 +234,7 @@ def save(operator,
     file = open(filepath, 'w', encoding='utf-8')
     fw = file.write
     fw('#VRML V2.0 utf8\n')
-    fw('#modeled using blender3d http://blender.org\n')
+    fw('#modeled using blender3d http://gnuchanos.org\n')
 
     if use_selection:
         objects = context.selected_objects

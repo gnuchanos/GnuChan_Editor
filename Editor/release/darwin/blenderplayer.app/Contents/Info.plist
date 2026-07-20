@@ -17,11 +17,11 @@
 	<key>CFBundleIdentifier</key>
 	<string>org.blenderfoundation.blenderplayer</string>
 	<key>CFBundleVersion</key>
-	<string>${MACOSX_BUNDLE_LONG_VERSION_STRING}, Blender Foundation</string>
+	<string>${MACOSX_BUNDLE_LONG_VERSION_STRING}, GnuChanOS</string>
 	<key>CFBundleShortVersionString</key>
 	<string>${MACOSX_BUNDLE_SHORT_VERSION_STRING}</string>
 	<key>CFBundleGetInfoString</key>
-	<string>${MACOSX_BUNDLE_LONG_VERSION_STRING}, Blender Foundation</string>
+	<string>${MACOSX_BUNDLE_LONG_VERSION_STRING}, GnuChanOS</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>

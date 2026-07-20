@@ -18,7 +18,7 @@
 #
 # ***** END GPL LICENCE BLOCK *****
 #
-# (c) 2015, Blender Foundation - Bastien Montagne
+# (c) 2015, GnuChanOS - Bastien Montagne
 
 # <pep8 compliant>
 

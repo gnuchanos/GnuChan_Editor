@@ -11,7 +11,7 @@
 #  LLVM_LIBRARY, where to find the LLVM library.
 
 #=============================================================================
-# Copyright 2015 Blender Foundation.
+# Copyright 2015 GnuChanOS.
 #
 # Distributed under the OSI-approved BSD License (the "License");
 # see accompanying file Copyright.txt for details.

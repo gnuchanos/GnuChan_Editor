@@ -1,7 +1,7 @@
 /*
  * ***** BEGIN GPL LICENSE BLOCK *****
  *
- * Copyright 2013 Blender Foundation
+ * Copyright 2013 GnuChanOS
  *
  * This file is part of AudaSpace.
  *

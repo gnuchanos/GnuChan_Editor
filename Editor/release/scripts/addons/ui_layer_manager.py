@@ -26,7 +26,7 @@ bl_info = {
     "location": "Toolshelf > Layers Tab",
     "warning": "",
     "description": "Display and Edit Layer Name",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/3D_interaction/layer_manager",
     "category": "3D View",
 }

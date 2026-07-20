@@ -2,7 +2,7 @@
  * Adapted from code Copyright 2009-2010 NVIDIA Corporation,
  * and code copyright 2009-2012 Intel Corporation
  *
- * Modifications Copyright 2011-2013, Blender Foundation.
+ * Modifications Copyright 2011-2013, GnuChanOS.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

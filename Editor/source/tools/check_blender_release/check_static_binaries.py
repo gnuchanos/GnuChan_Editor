@@ -62,7 +62,7 @@ ALLOWED_LIBS = (
     "libfreetype.so",
 )
 
-IGNORE_FILES = ("blender-softwaregl", )
+IGNORE_FILES = ("gnuchaneditor-softwaregl", )
 IGNORE_EXTENSION = (".sh", ".py", )
 
 

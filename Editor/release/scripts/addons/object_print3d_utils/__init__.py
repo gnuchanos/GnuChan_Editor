@@ -25,7 +25,7 @@ bl_info = {
     "location": "3D View > Toolbox",
     "description": "Utilities for 3D printing",
     "warning": "",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/Modeling/PrintToolbox",
     "support": 'OFFICIAL',
     "category": "Mesh"}

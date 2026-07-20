@@ -10,7 +10,7 @@
 #
 
 #=============================================================================
-# Copyright 2016 Blender Foundation.
+# Copyright 2016 GnuChanOS.
 #
 # Distributed under the OSI-approved BSD License (the "License");
 # see accompanying file Copyright.txt for details.

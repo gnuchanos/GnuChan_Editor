@@ -316,7 +316,7 @@ use to join a list of strings (the list may be temporary). In the following exam
 
 
 Join is fastest on many strings,
-`string formatting <https://wiki.blender.org/index.php/Dev:Source/Modeling/BMesh/Design>`__
+`string formatting <https://wiki.gnuchanos.org/index.php/Dev:Source/Modeling/BMesh/Design>`__
 is quite fast too (better for converting data types). String arithmetic is slowest.
 
 

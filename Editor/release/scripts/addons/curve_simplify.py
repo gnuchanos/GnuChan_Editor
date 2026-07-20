@@ -24,7 +24,7 @@ bl_info = {
     "location": "Search > Simplify Curves",
     "description": "Simplifies 3D Curve objects and animation F-Curves",
     "warning": "",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/Curve/Curve_Simplify",
     "category": "Add Curve",
 }

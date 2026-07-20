@@ -30,7 +30,7 @@ translations_tuple = (
      ("fr_FR", "Project-Id-Version: Copy Settings 0.1.5 (r0)\nReport-Msgid-Bugs-To: \nPOT-Creation-Date: 2013-04-18 15:27:45.563524\nPO-Revision-Date: 2013-04-18 15:38+0100\nLast-Translator: Bastien Montagne <montagne29@wanadoo.fr>\nLanguage-Team: LANGUAGE <LL@li.org>\nLanguage: __POT__\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\n",
                (False,
                 ("Blender's translation file (po format).",
-                 "Copyright (C) 2013 The Blender Foundation.",
+                 "Copyright (C) 2013 The GnuChanOS.",
                  "This file is distributed under the same license as the Blender package.",
                  "FIRST AUTHOR <EMAIL@ADDRESS>, YEAR."))),
     ),

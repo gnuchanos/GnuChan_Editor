@@ -18,7 +18,7 @@
 
 # <pep8 compliant>
 
-# Script copyright (C) Blender Foundation
+# Script copyright (C) GnuChanOS
 
 # FBX 7.1.0 -> 7.4.0 loader for Blender
 

@@ -25,7 +25,7 @@ bl_info = {
     "location": "View3D > Add > Camera > Dolly or Crane Rig",
     "description": "Adds a Camera Rig with UI",
     "warning": "Enable Auto Run Python Scripts in User Preferences > File",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/"
                 "Py/Scripts/Rigging/Add_Camera_Rigs",
     "category": "Camera",
 }

@@ -24,7 +24,7 @@ bl_info = {
     "blender": (2, 67, 0),
     "location": "Properties > Render",
     "description": "A simple Texture Atlas for unwrapping many objects. It creates additional UV",
-    "wiki_url": "http://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "http://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/UV/TextureAtlas",
     "category": "UV",
 }

@@ -25,7 +25,7 @@ bl_info = {
     "location": "View3D > Tools",
     "description": "Tools for converting/animating objects/particles into curves",
     "warning": "",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/Py/Scripts/Curve/Btrace",
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/Scripts/Curve/Btrace",
     "category": "Add Curve"}
 
 if "bpy" in locals():

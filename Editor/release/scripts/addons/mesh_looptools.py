@@ -24,7 +24,7 @@ bl_info = {
     "location": "View3D > Toolbar and View3D > Specials (W-key)",
     "warning": "",
     "description": "Mesh modelling toolkit. Several tools to aid modelling",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/Modeling/LoopTools",
     "category": "Mesh",
 }

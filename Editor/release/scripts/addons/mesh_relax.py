@@ -29,7 +29,7 @@ bl_info = {
     "location": "View3D > Specials > Relax ",
     "description": "Relax the selected verts while retaining the shape",
     "warning": "",
-    "wiki_url": "http://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "http://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/Modeling/Relax",
     "category": "Mesh",
 }

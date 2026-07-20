@@ -33,7 +33,7 @@ builder = sys.argv[1]
 
 # rsync, this assumes ssh keys are setup so no password is needed
 local_zip = "buildbot_upload.zip"
-remote_folder = "builder.blender.org:/data/buildbot-master/uploaded/"
+remote_folder = "builder.gnuchanos.org:/data/buildbot-master/uploaded/"
 remote_zip = remote_folder + "buildbot_upload_" + builder + ".zip"
 command = "rsync -avz %s %s" % (local_zip, remote_zip)
 

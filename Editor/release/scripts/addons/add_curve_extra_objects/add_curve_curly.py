@@ -1,6 +1,6 @@
 # gpl: author Cmomoney
 
-# DevBo Task https://developer.blender.org/T37299
+# DevBo Task https://developer.gnuchanos.org/T37299
 
 bl_info = {
     "name": "Curly Curves",
@@ -10,7 +10,7 @@ bl_info = {
     "location": "View3D > Add > Curve > Curly Curve",
     "description": "Adds a new Curly Curve",
     "warning": "",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/"
                 "Py/Scripts/Curve/Curly_Curves",
     "category": "Add Curve"}
 

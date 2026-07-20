@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * The Original Code is Copyright (C) 2011 Blender Foundation.
+ * The Original Code is Copyright (C) 2011 GnuChanOS.
  * Code from gutf8.c Copyright (C) 1999 Tom Tromey
  *                   Copyright (C) 2000 Red Hat, Inc.
  * All rights reserved.

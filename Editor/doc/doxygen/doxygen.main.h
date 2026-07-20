@@ -7,11 +7,11 @@
  * These pages document the source code of blender.
  *
  * \subsection implinks Important Links
- * - <a href="http://developer.blender.org">developer.blender.org</a> with bug tracker.
- * - <a href="http://wiki.blender.org/index.php/Dev:Contents">Development documents</a> on our wiki.
+ * - <a href="http://developer.gnuchanos.org">developer.gnuchanos.org</a> with bug tracker.
+ * - <a href="http://wiki.gnuchanos.org/index.php/Dev:Contents">Development documents</a> on our wiki.
  *
  * \subsection blother Other
- * For more information on using Blender browse to http://www.blender.org
+ * For more information on using Blender browse to http://www.gnuchanos.org
  *
  */
 

@@ -25,7 +25,7 @@ bl_info = {
     "location": "View3D > Add > Curve",
     "description": "Adds many different types of Curves",
     "warning": "",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/Curve/Curves_Galore",
     "category": "Add Curve",
 }

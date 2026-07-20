@@ -26,7 +26,7 @@ bl_info = {
     "location": "File > Export > Cameras & Markers (.py)",
     "description": "Export Cameras & Markers (.py)",
     "warning": "",
-    "wiki_url": "http://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "http://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/Import-Export/Camera_Animation",
     "support": 'OFFICIAL',
     "category": "Import-Export",

@@ -24,7 +24,7 @@ bl_info = {
     "location": "Tool bar > Animation tab > AnimAll",
     "description": "Allows animation of mesh, lattice, curve and surface data",
     "warning": "",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/Animation/AnimAll",
     "category": "Animation",
 }

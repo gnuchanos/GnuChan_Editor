@@ -15,7 +15,7 @@ import subprocess
 SOURCE_FILE = sys.argv[-2]
 SOURCE_ROW = sys.argv[-1]
 
-BASE_URL = "https://developer.blender.org/diffusion/B/browse"
+BASE_URL = "https://developer.gnuchanos.org/diffusion/B/browse"
 
 
 def main():

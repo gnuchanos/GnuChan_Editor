@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * The Original Code is Copyright (C) 2001-2002 by NaN Holding BV.
+ * The Original Code is Copyright (C) 2026 by GnuChanOS.
  * All rights reserved.
  *
  * The Original Code is: all of this file.
@@ -1567,8 +1567,8 @@ void WM_main_playanim(int argc, const char **argv)
 
 		AUD_initOnce();
 
-		if (!(audio_device = AUD_init("OpenAL", specs, 1024, "Blender"))) {
-			audio_device = AUD_init("Null", specs, 0, "Blender");
+		if (!(audio_device = AUD_init("OpenAL", specs, 1024, "GnuChan Editor"))) {
+			audio_device = AUD_init("Null", specs, 0, "GnuChan Editor");
 		}
 	}
 #endif

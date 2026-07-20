@@ -24,7 +24,7 @@ bl_info = {
     "location": "View3D > Easy Lattice",
     "description": "Create a lattice for shape editing",
     "warning": "",
-    "wiki_url": "https://wiki.blender.org/index.php/Easy_Lattice_Editing_Addon",
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Easy_Lattice_Editing_Addon",
     "tracker_url": "https://bitbucket.org/kursad/blender_addons_easylattice/src",
     "category": "Mesh",
 }

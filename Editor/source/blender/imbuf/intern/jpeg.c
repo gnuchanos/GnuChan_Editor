@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * The Original Code is Copyright (C) 2001-2002 by NaN Holding BV.
+ * The Original Code is Copyright (C) 2026 by GnuChanOS.
  * All rights reserved.
  *
  * The Original Code is: all of this file.
@@ -372,7 +372,7 @@ static ImBuf *ibJpegImageFromCinfo(struct jpeg_decompress_struct *cinfo, int fla
 				 * That is why we need split it to the
 				 * common key/value here.
 				 */
-				if (!STREQLEN(str, "Blender", 7)) {
+				if (!STREQLEN(str, "GnuChan Editor", 7)) {
 					/*
 					 * Maybe the file have text that
 					 * we don't know "what it's", in that
@@ -478,7 +478,7 @@ static void write_jpeg(struct jpeg_compress_struct *cinfo, struct ImBuf *ibuf)
 	jpeg_write_marker(cinfo, 0xe1, (JOCTET *) neogeo, 10);
 	if (ibuf->metadata) {
 		IDProperty *prop;
-		/* key + max value + "Blender" */
+		/* key + max value + "GnuChan Editor" */
 		text = MEM_mallocN(530, "stamp info read");
 		for (prop = ibuf->metadata->data.group.first; prop; prop = prop->next) {
 			if (prop->type == IDP_STRING) {
@@ -493,7 +493,7 @@ static void write_jpeg(struct jpeg_compress_struct *cinfo, struct ImBuf *ibuf)
 				 * single string:
 				 *	"Blender:key:value"
 				 *
-				 * The first "Blender" is a simple identify to help
+				 * The first "GnuChan Editor" is a simple identify to help
 				 * in the read process.
 				 */
 				text_len = sprintf(text, "Blender:%s:%s", prop->name, IDP_String(prop));

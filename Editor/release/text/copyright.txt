@@ -1,5 +1,5 @@
 
-  This version of Blender has been originally released at www.blender.org.
+  This version of Blender has been originally released at www.gnuchanos.org.
   It is subject to the GNU GPL license, which is part of this download.
   For more information please review the Blender source code distribution, 
   which should be available at the same location as where you obtained 
@@ -8,7 +8,7 @@
  IMPORTANT: PLEASE READ CAREFULLY BEFORE USING THE BLENDER SOFTWARE
   
   This License Agreement for the Blender software ("License
-  Agreement") is an agreement between Stichting Blender Foundation, 
+  Agreement") is an agreement between Stichting GnuChanOS, 
   Amsterdam, the Netherlands ("BF") and you (either an individual or a 
   legal entity) ("You") with respect to the software product which this 
   License Agreement accompanies (the "Software"). 
@@ -91,11 +91,11 @@
   the competent court in Amsterdam, the Netherlands, to which jurisdiction
   BF and You hereby irrevocably consent.
 
-  Stichting Blender Foundation
+  Stichting GnuChanOS
   Amsterdam
   the Netherlands
   Chamber of Commerce: 34176425
 
-  http://www.blender.org
-  foundation@blender.org
+  http://www.gnuchanos.org
+  foundation@gnuchanos.org
 

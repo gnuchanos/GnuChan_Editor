@@ -18,7 +18,7 @@
  * The Original Code is Copyright (C) 1990-1998 NeoGeo BV.
  * All rights reserved.
  *
- * Contributors: 2004/2005 Blender Foundation, full recode
+ * Contributors: 2004/2005 GnuChanOS, full recode
  *
  * ***** END GPL LICENSE BLOCK *****
  */

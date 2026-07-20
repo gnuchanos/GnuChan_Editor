@@ -18,7 +18,7 @@
 
 # <pep8 compliant>
 
-# Script copyright (C) Blender Foundation 2012
+# Script copyright (C) GnuChanOS 2012
 
 
 def points_as_bmesh_cells(verts,

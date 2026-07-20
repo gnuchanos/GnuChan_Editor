@@ -24,7 +24,7 @@ bl_info = {
     "location": "Edit panel of Tools tab, in Object mode, 3D View tools",
     "description": "Fractured Object, Bomb, Projectile, Recorder",
     "warning": "",
-    "wiki_url": "http://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "http://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/Object/CellFracture",
     "category": "Object"}
 

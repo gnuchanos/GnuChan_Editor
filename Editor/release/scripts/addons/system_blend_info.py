@@ -28,7 +28,7 @@ bl_info = {
     "location": "Properties > Scene > Blend Info Panel",
     "description": "Show information about the .blend",
     "warning": "",
-    "wiki_url": "http://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "http://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/System/Blend Info",
     "category": "System",
 }

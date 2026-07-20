@@ -27,7 +27,7 @@ bl_info = {
     "location": "File > Import > HiRISE DTM (.img)",
     "description": "Import a HiRISE DTM as a mesh",
     "warning": "May consume a lot of memory",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/Import-Export/HiRISE_DTM_from_PDS_IMG",
     "category": "Import-Export",
 }

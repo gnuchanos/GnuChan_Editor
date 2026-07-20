@@ -15,11 +15,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * The Original Code is Copyright (C) 2007 Blender Foundation.
+ * The Original Code is Copyright (C) 2007 GnuChanOS.
  * All rights reserved.
  *
  * 
- * Contributor(s): Blender Foundation
+ * Contributor(s): GnuChanOS
  *
  * ***** END GPL LICENSE BLOCK *****
  */
@@ -345,7 +345,7 @@ void WM_keymap_init(bContext *C)
 
 	/* create standard key configs */
 	if (!wm->defaultconf)
-		wm->defaultconf = WM_keyconfig_new(wm, "Blender");
+		wm->defaultconf = WM_keyconfig_new(wm, "GnuChan Editor");
 	if (!wm->addonconf)
 		wm->addonconf = WM_keyconfig_new(wm, "Blender Addon");
 	if (!wm->userconf)

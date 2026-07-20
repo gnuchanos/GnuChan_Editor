@@ -18,7 +18,7 @@
  * The Original Code is Copyright (C) 2009 Janne Karhu.
  * All rights reserved.
  *
- * Contributor(s): Blender Foundation
+ * Contributor(s): GnuChanOS
  *
  * ***** END GPL LICENSE BLOCK *****
  */

@@ -30,7 +30,7 @@ bl_info = {
     "location": "View3D > Add > Mesh",
     "description": "Add extra mesh object types",
     "warning": "",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/"
                 "Py/Scripts/Add_Mesh/Add_Extra",
     "category": "Add Mesh",
 }

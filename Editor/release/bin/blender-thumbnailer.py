@@ -28,9 +28,9 @@ blender.thumbnailer file in ${HOME}/.local/share/thumbnailers/ directory
 with the following contents:
 
 [Thumbnailer Entry]
-TryExec=blender-thumbnailer.py
-Exec=blender-thumbnailer.py %u %o
-MimeType=application/x-blender;
+TryExec=gnuchaneditor-thumbnailer.py
+Exec=gnuchaneditor-thumbnailer.py %u %o
+MimeType=application/x-gnuchaneditor;
 """
 
 import struct

@@ -26,7 +26,7 @@ The features exposed closely follow the C API,
 giving python access to the functions used by blenders own mesh editing tools.
 
 For an overview of BMesh data types and how they reference each other see:
-`BMesh Design Document <https://wiki.blender.org/index.php/Dev:Source/Modeling/BMesh/Design>`_ .
+`BMesh Design Document <https://wiki.gnuchanos.org/index.php/Dev:Source/Modeling/BMesh/Design>`_ .
 
 
 .. note::

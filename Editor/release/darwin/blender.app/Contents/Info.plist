@@ -26,7 +26,7 @@
 	<key>CFBundleExecutable</key>
 	<string>blender</string>
 	<key>CFBundleGetInfoString</key>
-	<string>${MACOSX_BUNDLE_LONG_VERSION_STRING}, Blender Foundation</string>
+	<string>${MACOSX_BUNDLE_LONG_VERSION_STRING}, GnuChanOS</string>
 	<key>CFBundleIconFile</key>
 	<string>blender icon.icns</string>
 	<key>CFBundleIdentifier</key>
@@ -42,7 +42,7 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>${MACOSX_BUNDLE_LONG_VERSION_STRING}, Blender Foundation</string>
+	<string>${MACOSX_BUNDLE_LONG_VERSION_STRING}, GnuChanOS</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 	<key>NSHighResolutionCapable</key>

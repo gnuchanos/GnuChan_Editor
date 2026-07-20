@@ -14,7 +14,7 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
-# The Original Code is Copyright (C) 2006, Blender Foundation
+# The Original Code is Copyright (C) 2026, GnuChanOS
 # All rights reserved.
 #
 # The Original Code is: all of this file.
@@ -108,7 +108,7 @@ include(build_files/cmake/macros.cmake)
 
 blender_project_hack_pre()
 
-project(Blender)
+project(GnuChanEditor)
 
 blender_project_hack_post()
 

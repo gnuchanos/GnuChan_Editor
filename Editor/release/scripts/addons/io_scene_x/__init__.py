@@ -26,7 +26,7 @@ bl_info = {
     "location": "File > Export > DirectX (.x)",
     "description": "Export mesh vertices, UV's, materials, textures, "
                    "vertex colors, armatures, empties, and actions.",
-    "wiki_url": "http://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "http://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/Import-Export/DirectX_Exporter",
     "category": "Import-Export"}
 

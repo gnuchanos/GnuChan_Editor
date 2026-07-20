@@ -1371,7 +1371,7 @@ def create_parser():
     parser = argparse.ArgumentParser(
         description=(
             "Check C/C++ code for conformance with blenders style guide:\n"
-            "http://wiki.blender.org/index.php/Dev:Doc/CodeStyle)")
+            "http://wiki.gnuchanos.org/index.php/Dev:Doc/CodeStyle)")
     )
     parser.add_argument(
         "paths",

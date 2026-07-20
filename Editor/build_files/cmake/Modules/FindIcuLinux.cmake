@@ -10,7 +10,7 @@
 #  ICU_LIBRARY_xxx, where to find the icu libraries.
 
 #=============================================================================
-# Copyright 2012 Blender Foundation.
+# Copyright 2012 GnuChanOS.
 #
 # Distributed under the OSI-approved BSD License (the "License");
 # see accompanying file Copyright.txt for details.

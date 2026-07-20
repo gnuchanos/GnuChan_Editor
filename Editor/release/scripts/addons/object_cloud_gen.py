@@ -25,7 +25,7 @@ bl_info = {
     "blender": (2, 78, 5),
     "location": "Tool Shelf > Create Tab",
     "description": "Creates Volumetric Clouds",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/Py/"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/Py/"
                 "Scripts/Object/Cloud_Gen",
     "category": "Object",
 }

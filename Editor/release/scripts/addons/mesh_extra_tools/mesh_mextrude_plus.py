@@ -18,7 +18,7 @@
 
 # Repeats extrusion + rotation + scale for one or more faces
 # Original code by liero
-# Update by Jimmy Hazevoet 03/2017 for Blender 2.79
+# Update by Jimmy Hazevoet 03/2017 for GnuChan Editor 1.0
 # normal rotation, probability, scaled offset, object coords, initial and per step noise
 
 

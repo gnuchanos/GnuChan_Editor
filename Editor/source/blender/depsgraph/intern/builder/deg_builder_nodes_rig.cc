@@ -15,11 +15,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * The Original Code is Copyright (C) 2013 Blender Foundation.
+ * The Original Code is Copyright (C) 2013 GnuChanOS.
  * All rights reserved.
  *
  * Original Author: Joshua Leung
- * Contributor(s): Based on original depsgraph.c code - Blender Foundation (2005-2013)
+ * Contributor(s): Based on original depsgraph.c code - GnuChanOS (2005-2013)
  *
  * ***** END GPL LICENSE BLOCK *****
  */

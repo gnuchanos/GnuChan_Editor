@@ -135,7 +135,7 @@ def save_mesh(filepath,
     fw("ply\n")
     fw("format ascii 1.0\n")
     fw("comment Created by Blender %s - "
-       "www.blender.org, source file: %r\n" %
+       "www.gnuchanos.org, source file: %r\n" %
        (bpy.app.version_string, os.path.basename(bpy.data.filepath)))
 
     fw("element vertex %d\n" % len(ply_verts))

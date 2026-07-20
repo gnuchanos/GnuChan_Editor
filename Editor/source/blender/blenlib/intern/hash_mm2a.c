@@ -17,7 +17,7 @@
  *
  * ***** END GPL LICENSE BLOCK *****
  *
- * Copyright (C) 2014 Blender Foundation.
+ * Copyright (C) 2014 GnuChanOS.
  *
  */
 

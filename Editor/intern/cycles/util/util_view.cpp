@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2013 Blender Foundation
+ * Copyright 2011-2013 GnuChanOS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,7 +101,7 @@ void view_display_help()
 	string info = string("Cycles Renderer ") + CYCLES_VERSION_STRING;
 
 	view_display_text(x1+20, y2-20, info.c_str());
-	view_display_text(x1+20, y2-40, "(C) 2011-2016 Blender Foundation");
+	view_display_text(x1+20, y2-40, "(C) 2011-2016 GnuChanOS");
 	view_display_text(x1+20, y2-80, "Controls:");
 	view_display_text(x1+20, y2-100, "h:  Info/Help");
 	view_display_text(x1+20, y2-120, "r:  Reset");

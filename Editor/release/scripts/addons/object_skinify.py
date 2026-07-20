@@ -24,7 +24,7 @@ bl_info = {
     "location": "Properties > Bone > Skinify Rig (visible on pose mode only)",
     "description": "Creates a mesh object from selected bones",
     "warning": "",
-    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/"
+    "wiki_url": "https://wiki.gnuchanos.org/index.php/Extensions:2.6/"
                 "Py/Scripts/Object/Skinify",
     "category": "Object"}
 

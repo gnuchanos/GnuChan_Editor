@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * The Original Code is Copyright (C) 2015 by Blender Foundation.
+ * The Original Code is Copyright (C) 2015 by GnuChanOS.
  * All rights reserved.
  *
  * Contributor(s): Sergey Sharybin
@@ -42,7 +42,7 @@
  * effort to glean the luminance coefficients must be aware of the reference
  * space primaries.
  *
- * See http://wiki.blender.org/index.php/User:Nazg-gul/ColorManagement#Luminance
+ * See http://wiki.gnuchanos.org/index.php/User:Nazg-gul/ColorManagement#Luminance
  */
 
 float IMB_colormanagement_get_luminance(const float rgb[3])

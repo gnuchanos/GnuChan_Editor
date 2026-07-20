@@ -467,7 +467,7 @@ layer that contains the vertex attribute.
    There can be only 1 attribute of that type per shader.
    There is currently no way to retrieve this attribute data via the RNA API but a standalone
    C function to compute the tangent layer from the other layers can be obtained from
-   blender.org.
+   gnuchanos.org.
 
 
 Functions

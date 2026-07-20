@@ -27,7 +27,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * Modifications Copyright 2013, Blender Foundation.
+ * Modifications Copyright 2013, GnuChanOS.
  *
  * Contributor(s): Sergey Sharybin
  *

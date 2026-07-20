@@ -22,7 +22,7 @@
 Bake UV-Texture to Vertex Colors Addon
 
 Contact:        p_boelens@msn.com
-Information:    https://developer.blender.org/T28211
+Information:    https://developer.gnuchanos.org/T28211
 
 Contributor(s): Patrick Boelens, CoDEmanX.
 
@@ -38,7 +38,7 @@ bl_info = {
     "blender": (2, 63, 0),
     "location": "3D View > Vertex Paint > Toolshelf > Bake",
     "warning": "Requires image texture, generated textures aren't supported.",
-    "wiki_url": "http://wiki.blender.org/index.php?title=Extensions:2.6/Py/"
+    "wiki_url": "http://wiki.gnuchanos.org/index.php?title=Extensions:2.6/Py/"
                 "Scripts/UV/Bake_Texture_to_Vertex_Colors",
     "category": "UV",
 }
