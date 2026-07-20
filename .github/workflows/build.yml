@@ -83,6 +83,7 @@ jobs:
             -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_DIR }} \
             -DWITH_PLAYER=OFF \
             -DWITH_SYSTEM_GLEW=ON \
+            -DWITH_CYCLES=OFF \
             -DWITH_IMAGE_OPENEXR=OFF \
             -DWITH_CODEC_FFMPEG=OFF \
             -DWITH_OPENCOLLADA=OFF \
@@ -115,10 +116,106 @@ jobs:
           path: ${{ env.INSTALL_DIR }}
           retention-days: 15
 
+  build-windows:
+    name: "Windows (MSVC 2022)"
+    runs-on: windows-2022
+    timeout-minutes: 180
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Setup Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Setup vcpkg
+        run: |
+          if (-not (Test-Path "C:\vcpkg")) {
+            git clone --depth=1 https://github.com/Microsoft/vcpkg.git C:\vcpkg
+            C:\vcpkg\bootstrap-vcpkg.bat -disableMetrics
+          }
+          C:\vcpkg\vcpkg.exe integrate install
+        shell: pwsh
+
+      - name: Install dependencies via vcpkg
+        run: |
+          C:\vcpkg\vcpkg.exe install --triplet x64-windows `
+            zlib libpng libjpeg-turbo freetype glew `
+            boost-system boost-filesystem boost-thread boost-regex boost-locale boost-date-time `
+            openal-soft pthreads
+        shell: pwsh
+
+      - name: Create pre-compiled libs structure
+        run: |
+          $VCPKG = "C:\vcpkg\installed\x64-windows"
+          $LIB = "${{ github.workspace }}\lib\win64_vc15"
+          New-Item -ItemType Directory -Force -Path "$LIB\zlib\lib", "$LIB\png\lib", "$LIB\jpeg\lib", "$LIB\freetype\lib", "$LIB\glew\lib", "$LIB\boost\lib", "$LIB\pthreads\lib", "$LIB\openal\lib", "$LIB\python\lib"
+          # Copy headers
+          Copy-Item -Recurse "$VCPKG\include\*" "$LIB\zlib\include\" -ErrorAction SilentlyContinue
+          # Copy libs
+          Copy-Item "$VCPKG\lib\zlib.lib" "$LIB\zlib\lib\libz_st.lib"
+          Copy-Item "$VCPKG\lib\libpng16.lib" "$LIB\png\lib\"
+          Copy-Item "$VCPKG\lib\jpeg.lib" "$LIB\jpeg\lib\libjpeg.lib"
+          Copy-Item "$VCPKG\lib\freetype.lib" "$LIB\freetype\lib\freetype2ST.lib"
+          Copy-Item "$VCPKG\lib\glew32.lib" "$LIB\glew\lib\"
+          Write-Host "Pre-compiled lib structure created at $LIB"
+        shell: pwsh
+
+      - name: Configure CMake
+        run: |
+          if (-not (Test-Path "${{ env.BUILD_DIR }}")) { New-Item -ItemType Directory -Path "${{ env.BUILD_DIR }}" }
+          cd ${{ env.BUILD_DIR }}
+          cmake ${{ env.SOURCE_DIR }} `
+            -G "Visual Studio 17 2022" `
+            -A x64 `
+            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} `
+            -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_DIR }} `
+            -DWITH_PLAYER=OFF `
+            -DWITH_CYCLES=OFF `
+            -DWITH_OPENCOLORIO=OFF `
+            -DWITH_OPENSUBDIV=OFF `
+            -DWITH_CODEC_FFMPEG=OFF `
+            -DWITH_OPENCOLLADA=OFF `
+            -DWITH_ALEMBIC=OFF `
+            -DWITH_JACK=OFF `
+            -DWITH_SDL=OFF `
+            -DWITH_FFTW3=OFF `
+            -DWITH_MOD_OCEANSIM=OFF `
+            -DWITH_CYCLES_OSL=OFF `
+            -DWITH_LLVM=OFF `
+            -DWITH_OPENVDB=OFF `
+            -DWITH_INTERNATIONAL=OFF
+        shell: pwsh
+
+      - name: Build
+        run: |
+          cd ${{ env.BUILD_DIR }}
+          cmake --build . --config ${{ env.BUILD_TYPE }} --parallel $env:NUMBER_OF_PROCESSORS
+
+      - name: Install
+        run: |
+          cd ${{ env.BUILD_DIR }}
+          cmake --install . --config ${{ env.BUILD_TYPE }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: gnuchaneditor-windows-x64
+          path: ${{ env.INSTALL_DIR }}
+          retention-days: 15
+
   create-release:
     name: "Create Release"
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: [build-linux]
+    needs: [build-linux, build-windows]
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -129,10 +226,21 @@ jobs:
           name: gnuchaneditor-linux-x64
           path: release/linux
 
+      - name: Download Windows
+        uses: actions/download-artifact@v4
+        with:
+          name: gnuchaneditor-windows-x64
+          path: release/windows
+
       - name: Package Linux
         run: |
           cd release/linux
           tar -czf ../gnuchaneditor-${{ github.ref_name }}-linux-x64.tar.gz *
+
+      - name: Package Windows
+        run: |
+          cd release/windows
+          7z a -tzip ../gnuchaneditor-${{ github.ref_name }}-windows-x64.zip *
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -145,7 +253,9 @@ jobs:
 
             ### Downloads
             - **Linux**: `gnuchaneditor-${{ github.ref_name }}-linux-x64.tar.gz`
+            - **Windows**: `gnuchaneditor-${{ github.ref_name }}-windows-x64.zip`
           files: |
             release/gnuchaneditor-${{ github.ref_name }}-linux-x64.tar.gz
+            release/gnuchaneditor-${{ github.ref_name }}-windows-x64.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
