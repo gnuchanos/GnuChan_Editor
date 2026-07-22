@@ -208,7 +208,7 @@ jobs:
 
                 # Permanent errors: URL doesn't exist, forbidden, etc. — no retry
                 if ($svnCode -in @('170000', '175002', '155010')) {
-                  Write-Warning "SVN $dir: permanent error E$svnCode — skipping this directory"
+                  Write-Warning "SVN ${dir}: permanent error E${svnCode} — skipping this directory"
                   return $false
                 }
               } else {
