@@ -1,0 +1,174 @@
+name: Build Range Engine (Linux)
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - 'release/**'
+    paths-ignore:
+      - '*.html'
+      - 'css/**'
+      - 'js/**'
+      - 'img/**'
+      - 'store/**'
+      - 'tools/**'
+      - 'news/**'
+      - 'api/**'
+      - '.github/workflows/deploy-website.yml'
+      - '404.html'
+      - 'CNAME'
+  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+env:
+  BUILD_DIR: ${{ github.workspace }}/build
+  CCACHE_DIR: ${{ github.workspace }}/.ccache
+  CCACHE_MAXSIZE: 2G
+  CCACHE_COMPRESS: 1
+  CMAKE_BUILD_TYPE: Release
+
+jobs:
+  build-linux:
+    name: Ubuntu 22.04
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          # .gitmodules dosyası tamamen yorum satırı, submodule yok
+          submodules: 'false'
+
+      - name: Install Build Dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq \
+            build-essential \
+            cmake \
+            ninja-build \
+            ccache \
+            pkg-config \
+            python3-dev \
+            python3-numpy \
+            libx11-dev \
+            libxxf86vm-dev \
+            libxcursor-dev \
+            libxi-dev \
+            libxrandr-dev \
+            libxinerama-dev \
+            libglew-dev \
+            libgl1-mesa-dev \
+            libglu1-mesa-dev \
+            libsdl2-dev \
+            libopenal-dev \
+            libjpeg-dev \
+            libpng-dev \
+            libtiff-dev \
+            libfreetype6-dev \
+            libavcodec-dev \
+            libavformat-dev \
+            libavutil-dev \
+            libswscale-dev \
+            libsamplerate-dev \
+            libjack-dev \
+            libfftw3-dev \
+            libboost-dev \
+            libboost-thread-dev \
+            libboost-filesystem-dev \
+            libboost-regex-dev \
+            libboost-system-dev \
+            libboost-locale-dev \
+            libboost-wave-dev \
+            libtbb-dev \
+            libxml2-dev \
+            libtinyxml-dev \
+            libyaml-cpp-dev \
+            libjemalloc-dev \
+            libopenexr-dev \
+            libopenjp2-7-dev \
+            zlib1g-dev \
+            liblzma-dev \
+            libssl-dev \
+            git \
+            wget
+
+      - name: Setup ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ runner.os }}-range-engine-v2-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-range-engine-v2-
+          max-size: 2G
+
+      - name: Configure CMake
+        run: |
+          mkdir -p "$BUILD_DIR"
+          cmake -S "${{ github.workspace }}" \
+                -B "$BUILD_DIR" \
+                -G Ninja \
+                -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE \
+                -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+                -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+                \
+                -DWITH_BLENDER=ON \
+                -DWITH_PLAYER=ON \
+                -DWITH_GAMEENGINE=ON \
+                -DWITH_CYCLES=OFF \
+                -DWITH_CYCLES_OSL=OFF \
+                -DWITH_OPENCOLORIO=ON \
+                -DWITH_OPENCOLLADA=OFF \
+                -DWITH_CODEC_FFMPEG=ON \
+                -DWITH_CODEC_AVI=ON \
+                -DWITH_SDL=ON \
+                -DWITH_OPENAL=ON \
+                -DWITH_JACK=OFF \
+                -DWITH_INTERNATIONAL=ON \
+                -DWITH_PYTHON_INSTALL=OFF \
+                -DWITH_FFTW3=ON \
+                -DWITH_MOD_OCEANSIM=ON \
+                -DWITH_RAYOPTIMIZATION=ON \
+                -DWITH_OPENMP=ON \
+                -DWITH_BUILDINFO=OFF \
+                -DWITH_IK_SOLVER=ON \
+                -DWITH_IK_ITASC=ON \
+                -DWITH_BULLET=ON \
+                -DWITH_FREESTYLE=ON \
+                -DWITH_IMAGE_OPENEXR=ON \
+                -DWITH_IMAGE_TIFF=ON \
+                -DWITH_IMAGE_DDS=ON \
+                -DWITH_IMAGE_HDR=ON \
+                -DWITH_IMAGE_OPENJPEG=ON \
+                -DWITH_LIBMV=ON \
+                -DWITH_MOD_FLUID=ON \
+                -DWITH_MOD_SMOKE=ON \
+                -DWITH_MOD_REMESH=ON \
+                -DWITH_AUDASPACE=ON \
+                -DWITH_INPUT_NDOF=OFF \
+                -DWITH_SYSTEM_GLEW=ON \
+                -DWITH_X11=ON \
+                -DWITH_X11_XINPUT=ON \
+                -DWITH_X11_XF86VMODE=ON \
+                -DWITH_LINKER_GOLD=ON \
+                -DWITH_TBB=ON \
+                -DWITH_MEM_JEMALLOC=ON
+
+      - name: Build
+        run: |
+          cmake --build "$BUILD_DIR" -j $(nproc)
+
+      - name: Show ccache Stats
+        run: ccache -s
+
+      - name: Upload Binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: range-engine-linux-${{ github.sha }}
+          path: |
+            $BUILD_DIR/bin/
+          retention-days: 7
+          if-no-files-found: ignore
