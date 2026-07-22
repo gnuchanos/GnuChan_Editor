@@ -186,7 +186,8 @@ jobs:
               }
 
               # Log the actual error for debugging
-              $errorLines = $result | Where-Object { $_ -match '(Error|failed|timeout|refused|can\'t|couldn\'t|429|403|500|502|503)' }
+              # Note: avoid escaped single quotes inside single-quoted strings (PowerShell syntax)
+              $errorLines = $result | Where-Object { $_ -match '(?i)(svn:.*\bE\d{6}\b|failed|timeout|refused|429|403|500|502|503)' }
               if ($errorLines) {
                 Write-Warning "SVN $dir error: $($errorLines -join '; ')"
               } else {
