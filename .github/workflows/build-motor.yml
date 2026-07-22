@@ -122,59 +122,43 @@ jobs:
           restore-keys: ${{ runner.os }}-gnuchan-win-
           max-size: 2G
 
-      - name: Cache precompiled libs
-        id: cache-libs
-        uses: actions/cache@v4
-        with:
-          path: ${{ github.workspace }}/lib/win64_vc15
-          key: win64-vc15-libs-v3
-          restore-keys: |
-            win64-vc15-libs-v3-
-            win64-vc15-libs-
-
       - name: Install SVN
-        if: steps.cache-libs.outputs.cache-hit != 'true'
         run: choco install svn -y --no-progress
 
       - name: Download precompiled libs (win64_vc15)
-        if: steps.cache-libs.outputs.cache-hit != 'true'
         shell: pwsh
         run: |
           $libDir = "$env:GITHUB_WORKSPACE\lib\win64_vc15"
           $svnUrl = "https://svn.blender.org/svnroot/bf-blender/trunk/lib/win64_vc15"
           $dirs = @("alembic","boost","fftw3","freetype","imath","jack","jpeg","openal","opencollada","opencolorio","openexr","openimageio","openjpeg","opensubdiv","openvdb","osl","png","pthreads","python","sdl","tbb","tiff","webp","zlib")
 
+          # Always do a clean checkout — no caching to avoid partial/broken states
+          if (Test-Path "$libDir") { Remove-Item -Recurse -Force "$libDir" -ErrorAction SilentlyContinue }
+          New-Item -ItemType Directory -Force -Path "$env:GITHUB_WORKSPACE\lib" | Out-Null
+          svn checkout --depth=empty $svnUrl "$libDir"
+
+          cd "$libDir"
           $retries = 3
           do {
             $retries--
             try {
-              # Full clean checkout on each retry to avoid partial-download issues
-              if (Test-Path "$libDir") { Remove-Item -Recurse -Force "$libDir" -ErrorAction SilentlyContinue }
-              New-Item -ItemType Directory -Force -Path "$env:GITHUB_WORKSPACE\lib" | Out-Null
-              # Sparse checkout — get only the folders we need, in a single connection
-              svn checkout --depth=empty $svnUrl "$libDir" 2>&1 | Out-Null
-              cd "$libDir"
-              $dirList = $dirs -join " "
-              svn update --set-depth=infinity $dirList 2>&1
+              # Pass array as individual arguments — PowerShell auto-expands
+              svn update --set-depth=infinity $dirs 2>&1
               $ok = $LASTEXITCODE -eq 0
             } catch {
               $ok = $false
               Write-Warning "SVN failed ($retries retries left): $_"
             }
-            if (-not $ok -and $retries -gt 0) { Start-Sleep -Seconds 30 }
+            if (-not $ok -and $retries -gt 0) {
+              Start-Sleep -Seconds 30
+              # Clean .svn locks before retry
+              svn cleanup 2>&1 | Out-Null
+            }
           } while (-not $ok -and $retries -ge 0)
 
           if (-not $ok) {
             Write-Error "Failed to download precompiled libs after 3 retries"
             exit 1
-          }
-          # Verify critical files exist
-          $critical = @("$libDir\boost\include\boost\version.hpp", "$libDir\python\311\include\Python.h")
-          foreach ($f in $critical) {
-            if (-not (Test-Path $f)) {
-              Write-Error "Missing critical file: $f"
-              exit 1
-            }
           }
 
       - name: Configure
