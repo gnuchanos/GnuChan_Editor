@@ -139,55 +139,69 @@ jobs:
 
           $libDir = "$env:GITHUB_WORKSPACE\lib\win64_vc15"
           $svnUrl = "https://svn.blender.org/svnroot/bf-blender/trunk/lib/win64_vc15"
-          $allDirs = @("alembic","boost","fftw3","freetype","imath","jack","jpeg","openal","opencollada","opencolorio","openexr","openimageio","openjpeg","opensubdiv","openvdb","osl","png","pthreads","python","sdl","tbb","tiff","webp","zlib")
 
-          # Always do a clean checkout — no caching to avoid partial/broken states
+          # Start fresh
           if (Test-Path "$libDir") { Remove-Item -Recurse -Force "$libDir" -ErrorAction SilentlyContinue }
-          New-Item -ItemType Directory -Force -Path "$env:GITHUB_WORKSPACE\lib" | Out-Null
-          svn checkout --depth=empty $svnUrl "$libDir"
+          New-Item -ItemType Directory -Force -Path "$libDir" | Out-Null
 
-          cd "$libDir"
-
-          $svnCommonArgs = @(
+          # SVN global config: long timeout, no compression (avoids transfer issues on large dirs)
+          $svnCfg = @(
             '--non-interactive',
-            '--config-option', 'servers:global:http-timeout=900',
-            '--config-option', 'servers:global:http-compression=yes'
+            '--config-option', 'servers:global:http-timeout=1800',
+            '--config-option', 'servers:global:http-compression=no',
+            '--config-option', 'servers:global:http-bulk-updates=yes'
           )
 
-          function Update-SvnDir {
-            param([string]$dir, [int]$maxAttempts = 6, [int]$initialDelay = 10)
-            $attempts = $maxAttempts
-            $delay = $initialDelay
-            do {
-              $result = & svn update @svnCommonArgs --set-depth=infinity $dir 2>&1
-              if ($LASTEXITCODE -eq 0) { return $true }
-              $attempts--
-              Write-Warning "SVN update $dir failed ($attempts attempts left): exit code $LASTEXITCODE"
-              if ($attempts -ge 0) {
-                Start-Sleep -Seconds $delay
-                $delay = [Math]::Min($delay * 2, 180)
-                & svn cleanup "$libDir" $svnCommonArgs[0] 2>&1 | Out-Null
-              }
-            } while ($attempts -ge 0)
-            return $false
-          }
-
-          function Fallback-FreshCheckout {
-            param([string]$dir, [int]$maxAttempts = 10, [int]$initialDelay = 30)
+          function Invoke-SvnCheckout {
+            param(
+              [string]$dir,
+              [int]$maxAttempts = 30,
+              [int]$baseDelay = 30
+            )
             $target = "$libDir\$dir"
             $attempts = $maxAttempts
-            $delay = $initialDelay
+            $delay = $baseDelay
+            $url = "$svnUrl/$dir"
+
             do {
-              if (Test-Path $target) { Remove-Item -Recurse -Force $target -ErrorAction SilentlyContinue }
-              $result = & svn checkout @svnCommonArgs --depth=infinity "$svnUrl/$dir" $target 2>&1
-              if ($LASTEXITCODE -eq 0) { return $true }
+              # Clean stale directory from previous attempt
+              if (Test-Path $target) {
+                Remove-Item -Recurse -Force $target -ErrorAction SilentlyContinue
+              }
+
+              Write-Host "--- SVN checkout $dir (attempt $($maxAttempts - $attempts + 1)/$maxAttempts) ---"
+              $result = & svn checkout @svnCfg --depth=infinity $url $target 2>&1
+              $exitCode = $LASTEXITCODE
               $attempts--
-              Write-Warning "SVN checkout $dir failed ($attempts attempts left): exit code $LASTEXITCODE"
+
+              if ($exitCode -eq 0) {
+                # Verify the target has content before declaring success
+                if (Test-Path $target) {
+                  $itemCount = (Get-ChildItem -Path $target -Recurse -File -ErrorAction SilentlyContinue | Measure-Object).Count
+                  Write-Host "SVN checkout $dir succeeded — $itemCount files"
+                  return $true
+                }
+                Write-Warning "SVN checkout $dir reported success but directory is empty"
+                $exitCode = 1
+              }
+
+              # Log the actual error for debugging
+              $errorLines = $result | Where-Object { $_ -match '(Error|failed|timeout|refused|can\'t|couldn\'t|429|403|500|502|503)' }
+              if ($errorLines) {
+                Write-Warning "SVN $dir error: $($errorLines -join '; ')"
+              } else {
+                Write-Warning "SVN checkout $dir failed: exit code $exitCode"
+              }
+
               if ($attempts -ge 0) {
-                Start-Sleep -Seconds $delay
-                $delay = [Math]::Min($delay * 2, 180)
+                $jitter = Get-Random -Minimum 0 -Maximum 30
+                $sleepTime = [Math]::Min($delay + $jitter, 300)
+                Write-Host "Waiting $sleepTime seconds before retry..."
+                Start-Sleep -Seconds $sleepTime
+                $delay = [Math]::Min($delay * 2, 300)
               }
             } while ($attempts -ge 0)
+
             return $false
           }
 
@@ -196,20 +210,25 @@ jobs:
 
           $failed = @()
           foreach ($d in $smallDirs) {
-            if (-not (Update-SvnDir $d 6 5)) { $failed += $d }
+            Write-Host "===== Checking out $d ====="
+            if (-not (Invoke-SvnCheckout $d 10 10)) {
+              $failed += $d
+              Write-Error "Failed to checkout $d after all retries"
+            }
             Start-Sleep -Seconds 3
           }
+
           if ($failed.Count -eq 0) {
             foreach ($d in $largeDirs) {
-              # Strategy: 15 attempts with exponential backoff (30s → 180s cap)
-              # If that fails, fall back to a fresh checkout of just this directory
-              if (-not (Update-SvnDir $d 15 30)) {
-                Write-Warning "Standard update exhausted for $d — trying fresh checkout fallback"
-                if (-not (Fallback-FreshCheckout $d 8 60)) { $failed += $d }
+              Write-Host "===== Checking out $d (large directory) ====="
+              if (-not (Invoke-SvnCheckout $d 30 60)) {
+                $failed += $d
+                Write-Error "Failed to checkout $d after all retries"
               }
               Start-Sleep -Seconds 10
             }
           }
+
           if ($failed.Count -gt 0) {
             Write-Error "SVN failed for directories: $($failed -join ', ')"
             exit 1
