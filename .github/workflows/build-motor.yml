@@ -39,6 +39,7 @@ jobs:
             libsdl2-dev libopenal-dev \
             libjpeg-dev libpng-dev libtiff-dev libfreetype6-dev \
             libavcodec-dev libavformat-dev libavutil-dev libswscale-dev \
+            libavdevice-dev libavfilter-dev \
             libsamplerate-dev libjack-dev libfftw3-dev \
             libboost-dev libboost-thread-dev libboost-filesystem-dev \
             libboost-regex-dev libboost-system-dev libboost-locale-dev \
@@ -155,7 +156,8 @@ jobs:
               }
               # Single SVN update with all dirs at once (1 HTTP request instead of 24)
               cd "$libDir"
-              svn update --set-depth=infinity $($dirs.ForEach({ "`"$_`"" }) -join " ") 2>&1
+              $dirList = $dirs -join " "
+              svn update --set-depth=infinity $dirList 2>&1
               $ok = $LASTEXITCODE -eq 0
             } catch {
               $ok = $false
