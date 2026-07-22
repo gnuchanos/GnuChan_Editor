@@ -3,15 +3,6 @@ name: GnuChan Editor
 on:
   push:
     branches: [ main, master, 'release/**' ]
-    paths-ignore:
-      - '*.html'
-      - 'css/**'
-      - 'js/**'
-      - 'img/**'
-      - 'store/**'
-      - 'tools/**'
-      - 'news/**'
-      - 'api/**'
   pull_request:
     branches: [ main, master ]
   workflow_dispatch:
@@ -27,6 +18,9 @@ jobs:
   build-linux:
     name: Linux
     runs-on: ubuntu-22.04
+    defaults:
+      run:
+        working-directory: src
     steps:
       - uses: actions/checkout@v4
         with:
@@ -62,7 +56,7 @@ jobs:
       - name: Configure
         run: |
           mkdir -p "$BUILD_DIR"
-          cmake -S "${{ github.workspace }}" -B "$BUILD_DIR" -G Ninja \
+          cmake -S "${{ github.workspace }}/src" -B "$BUILD_DIR" -G Ninja \
             -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE \
             -DCMAKE_C_COMPILER_LAUNCHER=ccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
@@ -103,5 +97,70 @@ jobs:
         with:
           name: gnuchan-editor-linux
           path: $BUILD_DIR/bin/
+          retention-days: 7
+          if-no-files-found: ignore
+
+  build-windows:
+    name: Windows
+    runs-on: windows-2022
+    defaults:
+      run:
+        working-directory: src
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          submodules: 'false'
+
+      - uses: microsoft/setup-msbuild@v2
+
+      - uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ runner.os }}-gnuchan-win-${{ github.sha }}
+          restore-keys: ${{ runner.os }}-gnuchan-win-
+          max-size: 2G
+
+      - name: Configure
+        shell: cmd
+        run: |
+          mkdir "%BUILD_DIR%"
+          cmake -S "%GITHUB_WORKSPACE%\src" -B "%BUILD_DIR%" ^
+            -G "Visual Studio 17 2022" -A x64 ^
+            -DCMAKE_BUILD_TYPE=Release ^
+            -DWITH_BLENDER=ON ^
+            -DWITH_PLAYER=ON ^
+            -DWITH_GAMEENGINE=ON ^
+            -DWITH_CYCLES=OFF ^
+            -DWITH_CYCLES_OSL=OFF ^
+            -DWITH_OPENCOLORIO=ON ^
+            -DWITH_OPENCOLLADA=OFF ^
+            -DWITH_CODEC_FFMPEG=ON ^
+            -DWITH_SDL=ON ^
+            -DWITH_OPENAL=ON ^
+            -DWITH_INTERNATIONAL=ON ^
+            -DWITH_PYTHON_INSTALL=OFF ^
+            -DWITH_RAYOPTIMIZATION=ON ^
+            -DWITH_OPENMP=ON ^
+            -DWITH_BUILDINFO=OFF ^
+            -DWITH_BULLET=ON ^
+            -DWITH_FREESTYLE=ON ^
+            -DWITH_IMAGE_OPENEXR=ON ^
+            -DWITH_IMAGE_TIFF=ON ^
+            -DWITH_LIBMV=ON ^
+            -DWITH_AUDASPACE=ON ^
+            -DWITH_TBB=ON
+        env:
+          BUILD_DIR: ${{ github.workspace }}\build
+
+      - name: Build
+        shell: cmd
+        run: cmake --build "%BUILD_DIR%" --config Release -j %NUMBER_OF_PROCESSORS%
+        env:
+          BUILD_DIR: ${{ github.workspace }}\build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gnuchan-editor-windows
+          path: ${{ github.workspace }}\build\bin\Release\
           retention-days: 7
           if-no-files-found: ignore
