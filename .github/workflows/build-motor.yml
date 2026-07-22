@@ -128,9 +128,18 @@ jobs:
       - name: Download precompiled libs (win64_vc15)
         shell: pwsh
         run: |
+          # Enable long paths on Windows (avoid MAX_PATH issues with SVN deep trees)
+          try {
+            New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" `
+              -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force | Out-Null
+            Write-Host "Enabled Windows long path support"
+          } catch {
+            Write-Warning "Could not enable long paths (non-admin?): $_"
+          }
+
           $libDir = "$env:GITHUB_WORKSPACE\lib\win64_vc15"
           $svnUrl = "https://svn.blender.org/svnroot/bf-blender/trunk/lib/win64_vc15"
-          $dirs = @("alembic","boost","fftw3","freetype","imath","jack","jpeg","openal","opencollada","opencolorio","openexr","openimageio","openjpeg","opensubdiv","openvdb","osl","png","pthreads","python","sdl","tbb","tiff","webp","zlib")
+          $allDirs = @("alembic","boost","fftw3","freetype","imath","jack","jpeg","openal","opencollada","opencolorio","openexr","openimageio","openjpeg","opensubdiv","openvdb","osl","png","pthreads","python","sdl","tbb","tiff","webp","zlib")
 
           # Always do a clean checkout — no caching to avoid partial/broken states
           if (Test-Path "$libDir") { Remove-Item -Recurse -Force "$libDir" -ErrorAction SilentlyContinue }
@@ -138,39 +147,66 @@ jobs:
           svn checkout --depth=empty $svnUrl "$libDir"
 
           cd "$libDir"
-          # Separate large dirs (prone to 429) from small ones
-          $smallDirs = @("alembic","fftw3","freetype","imath","jack","jpeg","openal","opencollada","opencolorio","openexr","openimageio","openjpeg","opensubdiv","openvdb","osl","png","pthreads","sdl","tbb","tiff","webp","zlib")
-          $largeDirs = @("boost","python")
 
-          function Update-SvnDir($dir, $maxRetries, $delaySec) {
-            $attempts = $maxRetries
+          $svnCommonArgs = @(
+            '--non-interactive',
+            '--config-option', 'servers:global:http-timeout=900',
+            '--config-option', 'servers:global:http-compression=yes'
+          )
+
+          function Update-SvnDir {
+            param([string]$dir, [int]$maxAttempts = 6, [int]$initialDelay = 10)
+            $attempts = $maxAttempts
+            $delay = $initialDelay
             do {
+              $result = & svn update @svnCommonArgs --set-depth=infinity $dir 2>&1
+              if ($LASTEXITCODE -eq 0) { return $true }
               $attempts--
-              try {
-                & svn update --set-depth=infinity $dir 2>&1
-                if ($LASTEXITCODE -eq 0) { return $true }
-                throw "exit code $LASTEXITCODE"
-              } catch {
-                Write-Warning "SVN update $dir failed ($attempts retries left): $_"
-                if ($attempts -gt 0) {
-                  Start-Sleep -Seconds $delaySec
-                  & svn cleanup "$libDir" 2>&1 | Out-Null
-                }
+              Write-Warning "SVN update $dir failed ($attempts attempts left): exit code $LASTEXITCODE"
+              if ($attempts -ge 0) {
+                Start-Sleep -Seconds $delay
+                $delay = [Math]::Min($delay * 2, 180)
+                & svn cleanup "$libDir" $svnCommonArgs[0] 2>&1 | Out-Null
               }
             } while ($attempts -ge 0)
             return $false
           }
 
-          # Small dirs: 3 retries, 3s delay between, 5s retry delay
+          function Fallback-FreshCheckout {
+            param([string]$dir, [int]$maxAttempts = 10, [int]$initialDelay = 30)
+            $target = "$libDir\$dir"
+            $attempts = $maxAttempts
+            $delay = $initialDelay
+            do {
+              if (Test-Path $target) { Remove-Item -Recurse -Force $target -ErrorAction SilentlyContinue }
+              $result = & svn checkout @svnCommonArgs --depth=infinity "$svnUrl/$dir" $target 2>&1
+              if ($LASTEXITCODE -eq 0) { return $true }
+              $attempts--
+              Write-Warning "SVN checkout $dir failed ($attempts attempts left): exit code $LASTEXITCODE"
+              if ($attempts -ge 0) {
+                Start-Sleep -Seconds $delay
+                $delay = [Math]::Min($delay * 2, 180)
+              }
+            } while ($attempts -ge 0)
+            return $false
+          }
+
+          $smallDirs = @("alembic","fftw3","freetype","imath","jack","jpeg","openal","opencollada","opencolorio","openexr","openimageio","openjpeg","opensubdiv","openvdb","osl","png","pthreads","sdl","tbb","tiff","webp","zlib")
+          $largeDirs = @("boost","python")
+
           $failed = @()
           foreach ($d in $smallDirs) {
-            if (-not (Update-SvnDir $d 3 5)) { $failed += $d }
+            if (-not (Update-SvnDir $d 6 5)) { $failed += $d }
             Start-Sleep -Seconds 3
           }
-          # Large dirs: 5 retries, 15s retry delay, 10s between
           if ($failed.Count -eq 0) {
             foreach ($d in $largeDirs) {
-              if (-not (Update-SvnDir $d 5 15)) { $failed += $d }
+              # Strategy: 15 attempts with exponential backoff (30s → 180s cap)
+              # If that fails, fall back to a fresh checkout of just this directory
+              if (-not (Update-SvnDir $d 15 30)) {
+                Write-Warning "Standard update exhausted for $d — trying fresh checkout fallback"
+                if (-not (Fallback-FreshCheckout $d 8 60)) { $failed += $d }
+              }
               Start-Sleep -Seconds 10
             }
           }
@@ -178,6 +214,7 @@ jobs:
             Write-Error "SVN failed for directories: $($failed -join ', ')"
             exit 1
           }
+
           # Verify critical files exist
           $testFiles = @(
             "$libDir\boost\include\boost\version.hpp",
