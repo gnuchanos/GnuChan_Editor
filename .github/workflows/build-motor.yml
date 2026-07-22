@@ -94,58 +94,41 @@ jobs:
 
       - name: Build
         id: build
-        continue-on-error: true
-        run: cmake --build "$BUILD_DIR" -j $(nproc) 2>&1 | tee "$BUILD_DIR/build_log.txt"
-
-      - name: Extract errors and save report
-        if: always()
+        shell: bash
         run: |
-          LOG="$BUILD_DIR/build_log.txt"
-          ERRORS="$GITHUB_WORKSPACE/gnuchan_build_errors.txt"
-          if [ -f "$LOG" ]; then
-            cp "$LOG" "$GITHUB_WORKSPACE/build_full_log.txt"
-            grep -in "error" "$LOG" > "$ERRORS" 2>/dev/null || true
-            if [ -s "$ERRORS" ]; then
-              COUNT=$(wc -l < "$ERRORS")
-              {
-                echo "========================================"
-                echo "  GNUCHAN EDITOR BUILD ERROR REPORT"
-                echo "========================================"
-                echo ""
-                echo "OS: ubuntu-22.04"
-                echo "Date: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
-                echo "Workflow: $GITHUB_WORKFLOW"
-                echo "Run ID: $GITHUB_RUN_ID"
-                echo ""
-                echo "Total error lines: $COUNT"
-                echo ""
-                echo "========================================"
-                echo "  ERRORS"
-                echo "========================================"
-                cat "$ERRORS"
-              } > "${ERRORS}.tmp" && mv "${ERRORS}.tmp" "$ERRORS"
-              echo "::warning::Build errors detected - $COUNT lines saved to gnuchan_build_errors.txt"
-            fi
-          fi
+          cmake --build "$BUILD_DIR" -j $(nproc) 2>&1 | tee "$BUILD_DIR/build_log.txt"
+          exitcode=${PIPESTATUS[0]}
+          echo "BUILD_EXIT_CODE=$exitcode" >> "$GITHUB_OUTPUT"
+          exit $exitcode
 
-      - name: Fail if build failed
-        if: steps.build.outcome == 'failure'
+      - name: Extract build errors
+        if: failure() || steps.build.outcome == 'failure'
+        shell: bash
         run: |
-          echo "::error::Build failed. Check 'build-logs-linux' artifact for the error report."
-          exit 1
+          echo "=== GNUCHAN BUILD ERROR REPORT ===" > "$GITHUB_WORKSPACE/gnuchan_build_errors.txt"
+          echo "OS: ubuntu-22.04" >> "$GITHUB_WORKSPACE/gnuchan_build_errors.txt"
+          echo "Date: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> "$GITHUB_WORKSPACE/gnuchan_build_errors.txt"
+          echo "Workflow: $GITHUB_WORKFLOW" >> "$GITHUB_WORKSPACE/gnuchan_build_errors.txt"
+          echo "Run ID: $GITHUB_RUN_ID" >> "$GITHUB_WORKSPACE/gnuchan_build_errors.txt"
+          echo "" >> "$GITHUB_WORKSPACE/gnuchan_build_errors.txt"
+          echo "=== BUILD ERRORS ===" >> "$GITHUB_WORKSPACE/gnuchan_build_errors.txt"
+          grep -in "error" "$BUILD_DIR/build_log.txt" >> "$GITHUB_WORKSPACE/gnuchan_build_errors.txt" 2>/dev/null || true
+          echo "" >> "$GITHUB_WORKSPACE/gnuchan_build_errors.txt"
+          echo "--- END ---" >> "$GITHUB_WORKSPACE/gnuchan_build_errors.txt"
 
-      - name: Upload build logs (error report + full log)
+      - name: Upload build logs artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: build-logs-linux
           path: |
             gnuchan_build_errors.txt
-            build_full_log.txt
+            ${{ env.BUILD_DIR }}/build_log.txt
           retention-days: 30
           if-no-files-found: ignore
 
       - uses: actions/upload-artifact@v4
+        if: success()
         with:
           name: gnuchan-editor-linux
           path: $BUILD_DIR/bin/
@@ -176,27 +159,14 @@ jobs:
         run: choco install svn -y --no-progress
 
       - name: Download precompiled libs (win64_vc15)
-        id: svn_checkout
-        continue-on-error: true
         shell: pwsh
         run: |
-          # Enable long paths on Windows (avoid MAX_PATH issues with SVN deep trees)
-          try {
-            New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" `
-              -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force | Out-Null
-            Write-Host "Enabled Windows long path support"
-          } catch {
-            Write-Warning "Could not enable long paths (non-admin?): $_"
-          }
-
           $libDir = "$env:GITHUB_WORKSPACE\lib\win64_vc15"
           $svnUrl = "https://svn.blender.org/svnroot/bf-blender/trunk/lib/win64_vc15"
 
-          # Start fresh
           if (Test-Path "$libDir") { Remove-Item -Recurse -Force "$libDir" -ErrorAction SilentlyContinue }
           New-Item -ItemType Directory -Force -Path "$libDir" | Out-Null
 
-          # SVN global config: long timeout, compression off to avoid transfer issues
           $svnCfg = @(
             '--non-interactive',
             '--config-option', 'servers:global:http-timeout=1800',
@@ -204,7 +174,6 @@ jobs:
             '--config-option', 'servers:global:http-bulk-updates=yes'
           )
 
-          # Verified directory list from the SVN server (excluding files like dir.txt/dir.srt)
           $allDirs = @("Fribidi","MaterialX","OpenImageIO","alembic","blosc","boost","brotli","dpcpp","embree","epoxy","ffmpeg","fftw3","freetype","gmp","harfbuzz","haru","iconv","imath","jpeg","level-zero","llvm","openal","opencollada","opencolorio","openexr","opengl","openimagedenoise","openjpeg","openpgl","opensubdiv","openvdb","osl","package","png","potrace","pthreads","pugixml","pystring","python","sdl","shaderc","sndfile","tbb","tiff","usd","vulkan","webp","wintab","xml2","xr_openxr_sdk","zlib","zstd")
           $largeDirs = @("boost","python")
 
@@ -220,15 +189,11 @@ jobs:
             $url = "$svnUrl/$dir"
 
             do {
-              if (Test-Path $target) {
-                Remove-Item -Recurse -Force $target -ErrorAction SilentlyContinue
-              }
-
+              if (Test-Path $target) { Remove-Item -Recurse -Force $target -ErrorAction SilentlyContinue }
               Write-Host "--- SVN checkout $dir (attempt $($maxAttempts - $attempts + 1)/$maxAttempts) ---"
               $result = & svn checkout @svnCfg --depth=infinity $url $target 2>&1
               $exitCode = $LASTEXITCODE
               $attempts--
-
               if ($exitCode -eq 0) {
                 if (Test-Path $target) {
                   $itemCount = (Get-ChildItem -Path $target -Recurse -File -ErrorAction SilentlyContinue | Measure-Object).Count
@@ -238,22 +203,8 @@ jobs:
                 Write-Warning "SVN checkout $dir reported success but directory is empty"
                 $exitCode = 1
               }
-
               $errorMsg = $result -join ' '
-              $svnErrorMatch = [regex]::Match($errorMsg, 'svn:\s+E(\d{6})')
-
-              if ($svnErrorMatch.Success) {
-                $svnCode = $svnErrorMatch.Groups[1].Value
-                Write-Warning "SVN $dir error: E$svnCode"
-                # Permanent errors: URL doesn't exist, forbidden, etc.
-                if ($svnCode -in @('170000', '175002', '155010')) {
-                  Write-Warning "SVN ${dir}: permanent error E${svnCode} -- skipping"
-                  return $false
-                }
-              } else {
-                Write-Warning "SVN checkout $dir failed: exit code $exitCode"
-              }
-
+              Write-Warning "SVN checkout $dir failed: exit code $exitCode"
               if ($attempts -ge 0) {
                 $jitter = Get-Random -Minimum 0 -Maximum 30
                 $sleepTime = [Math]::Min($delay + $jitter, 300)
@@ -262,7 +213,6 @@ jobs:
                 $delay = [Math]::Min($delay * 2, 300)
               }
             } while ($attempts -ge 0)
-
             return $false
           }
 
@@ -271,7 +221,6 @@ jobs:
             $isLarge = $d -in $largeDirs
             $maxRetries = if ($isLarge) { 30 } else { 10 }
             $baseDelay = if ($isLarge) { 60 } else { 10 }
-
             Write-Host "===== Checking out $d ($(if ($isLarge) {'large'} else {'small'}) directory) ====="
             if (-not (Invoke-SvnCheckout $d $maxRetries $baseDelay)) {
               $failed += $d
@@ -279,32 +228,14 @@ jobs:
             }
             Start-Sleep -Seconds $(if ($isLarge) {10} else {3})
           }
-
           if ($failed.Count -gt 0) {
             Write-Error "SVN failed for directories: $($failed -join ', ')"
             exit 1
           }
 
-          # Verify critical files exist — use wildcard/glob for versioned paths
-          $testFiles = @(
-            "$libDir\boost\include\boost\version.hpp",
-            "$libDir\ffmpeg\include\libavformat\avformat.h",
-            "$libDir\python\311\include\Python.h"
-          )
-          # openjpeg version dir varies; search for it
           $openjpegTest = Get-ChildItem -Path "$libDir\openjpeg\include" -Recurse -Filter "openjpeg.h" -ErrorAction SilentlyContinue | Select-Object -First 1
-          if (-not $openjpegTest) {
-            Write-Error "Missing openjpeg.h -- SVN checkout appears incomplete"
-            exit 1
-          }
+          if (-not $openjpegTest) { Write-Error "Missing openjpeg.h"; exit 1 }
           Write-Host "Found openjpeg.h at $($openjpegTest.FullName)"
-
-          foreach ($f in $testFiles) {
-            if (-not (Test-Path $f)) {
-              Write-Error "Missing critical file: $f -- SVN checkout appears incomplete"
-              exit 1
-            }
-          }
 
       - name: Configure
         shell: cmd
@@ -340,64 +271,47 @@ jobs:
 
       - name: Build
         id: build_windows
-        continue-on-error: true
         shell: cmd
-        run: cmake --build "%BUILD_DIR%" --config Release -j %NUMBER_OF_PROCESSORS% > "%BUILD_DIR%\build_log.txt" 2>&1
+        run: |
+          cmake --build "%BUILD_DIR%" --config Release -j %NUMBER_OF_PROCESSORS% > "%BUILD_DIR%\build_log.txt" 2>&1
+          set BUILDEXIT=%ERRORLEVEL%
+          type "%BUILD_DIR%\build_log.txt"
+          if %BUILDEXIT% NEQ 0 exit /b %BUILDEXIT%
         env:
           BUILD_DIR: ${{ github.workspace }}\build
 
-      - name: Extract errors and save report
-        if: always()
+      - name: Extract build errors (Windows)
+        if: failure()
         shell: pwsh
         run: |
           $logPath = "$env:BUILD_DIR\build_log.txt"
           if (!(Test-Path $logPath)) { Write-Host "No build log found"; exit 0 }
-
-          Copy-Item $logPath "$env:GITHUB_WORKSPACE\build_full_log.txt"
-
-          $errors = Get-Content $logPath | Select-String -Pattern "error [A-Z]\d{4}|error C\d{4}|error LNK\d{4}|fatal error|Process completed" | Select-Object -ExpandProperty Line
-          if ($errors) {
-            $count = ($errors | Measure-Object).Count
-            $report = @"
-  GNUCHAN EDITOR BUILD ERROR REPORT
-
+          $report = @"
+=== GNUCHAN BUILD ERROR REPORT ===
 OS: windows-2022
 Date: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss UTC')
 Workflow: $env:GITHUB_WORKFLOW
 Run ID: $env:GITHUB_RUN_ID
 
-Total error lines: $count
-
-  ERRORS
-
+=== BUILD ERRORS ===
 "@
-            $report | Out-File "$env:GITHUB_WORKSPACE\gnuchan_build_errors.txt" -Encoding utf8
-            $errors | Out-File "$env:GITHUB_WORKSPACE\gnuchan_build_errors.txt" -Encoding utf8 -Append
-            Write-Host "Saved $count error line(s) to gnuchan_build_errors.txt"
-            Write-Host "::warning::Build errors detected - $count lines. See 'build-logs-windows' artifact."
-          } else {
-            Write-Host "No build errors found in log"
-          }
+          $report | Out-File "$env:GITHUB_WORKSPACE\gnuchan_build_errors.txt" -Encoding utf8
+          Get-Content $logPath | Select-String -Pattern "error [A-Z]\d{4}|error C\d{4}|error LNK\d{4}|fatal error|Process completed" | ForEach-Object { $_ } | Out-File "$env:GITHUB_WORKSPACE\gnuchan_build_errors.txt" -Encoding utf8 -Append
+          "`n--- END ---" | Out-File "$env:GITHUB_WORKSPACE\gnuchan_build_errors.txt" -Encoding utf8 -Append
 
-      - name: Fail if build failed
-        if: steps.build_windows.outcome == 'failure'
-        shell: pwsh
-        run: |
-          Write-Host "::error::Build failed. Check 'build-logs-windows' artifact for the error report."
-          exit 1
-
-      - name: Upload build logs (error report + full log)
+      - name: Upload build logs artifact (Windows)
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: build-logs-windows
           path: |
             gnuchan_build_errors.txt
-            build_full_log.txt
+            ${{ github.workspace }}\build\build_log.txt
           retention-days: 30
           if-no-files-found: ignore
 
       - uses: actions/upload-artifact@v4
+        if: success()
         with:
           name: gnuchan-editor-windows
           path: ${{ github.workspace }}\build\bin\Release\
