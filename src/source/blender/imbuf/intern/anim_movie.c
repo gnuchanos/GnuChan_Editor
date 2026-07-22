@@ -77,12 +77,12 @@
 #ifdef WITH_FFMPEG
 #  include "BKE_global.h"  /* ENDIAN_ORDER */
 
+#  include "ffmpeg_compat.h"
+
 #  include <libavformat/avformat.h>
 #  include <libavcodec/avcodec.h>
 #  include <libavutil/rational.h>
 #  include <libswscale/swscale.h>
-
-#  include "ffmpeg_compat.h"
 #endif //WITH_FFMPEG
 
 int ismovie(const char *UNUSED(filepath))

@@ -57,8 +57,9 @@ using namespace OCIO_NAMESPACE;
 #  define OCIO_PROCESSOR_APPLY_RGBA(p, px)(p)->getDefaultCPUProcessor()->applyRGBA(px)
 #  define OCIO_GET_DISPLAY_COLORSPACE(cfg, display, view) _ociov23_getDisplayColorSpaceName(cfg, display, view)
 #  define OCIO_PACKED_IMAGE_DESC_ARGS 6
-/* DisplayTransform typedef was removed; use the full type */
-typedef OCIO_NAMESPACE::DisplayTransformRcPtr DisplayTransformRcPtrAlias;
+/* DisplayTransformRcPtr typedef was removed in OCIO 2.3 public headers.
+ * Use std::shared_ptr<const DisplayTransform> as a compatible replacement. */
+typedef std::shared_ptr<const DisplayTransform> DisplayTransformRcPtrAlias;
 #  define DISPLAY_TRANSFORM_RCPTR DisplayTransformRcPtrAlias
 #else
 #  define OCIO_PROCESSOR_APPLY(p, img)    (p)->apply(*(PackedImageDesc *)(img))
@@ -655,7 +656,7 @@ OCIO_PackedImageDesc *OCIOImpl::createOCIO_PackedImageDesc(float *data, long wid
                                                            long chanStrideBytes, long xStrideBytes, long yStrideBytes)
 {
 	try {
-		void *mem = MEM_mallocN(sizeof(PackedImageDesc), __func__);
+		void *mem = (void *)MEM_mallocN(sizeof(PackedImageDesc), __func__);
 #if OCIO_PACKED_IMAGE_DESC_ARGS == 7
 		PackedImageDesc *id = new(mem) PackedImageDesc(data, width, height, numChannels, chanStrideBytes, xStrideBytes, yStrideBytes);
 #else
@@ -707,7 +708,13 @@ OCIO_MatrixTransformRcPtr *OCIOImpl::createMatrixTransform(void)
 
 void OCIOImpl::matrixTransformSetValue(OCIO_MatrixTransformRcPtr *mt, const float *m44, const float *offset4)
 {
+#if OCIO_VERSION_HEX >= 0x02030000
+	/* OCIO 2.3+ removed MatrixTransform::setValue(). Use MatrixTransform::setMatrix() and setOffset() instead. */
+	(*(MatrixTransformRcPtr *) mt)->setMatrix(m44);
+	(*(MatrixTransformRcPtr *) mt)->setOffset(offset4);
+#else
 	(*(MatrixTransformRcPtr *) mt)->setValue(m44, offset4);
+#endif
 }
 
 void OCIOImpl::matrixTransformRelease(OCIO_MatrixTransformRcPtr *mt)

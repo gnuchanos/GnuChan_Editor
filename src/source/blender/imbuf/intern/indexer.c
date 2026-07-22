@@ -442,6 +442,14 @@ typedef struct IndexBuildContext {
 
 #ifdef WITH_FFMPEG
 
+#if LIBAVFORMAT_VERSION_MAJOR >= 59 || LIBAVCODEC_VERSION_MAJOR >= 59
+#  ifndef FFMPEG5
+#    define FFMPEG5
+#  endif
+#endif
+
+#ifndef FFMPEG5
+
 struct proxy_output_ctx {
 	AVFormatContext *of;
 	AVStream *st;
@@ -470,6 +478,7 @@ static struct proxy_output_ctx *alloc_proxy_output_ffmpeg(
 	struct proxy_output_ctx *rv = MEM_callocN(
 	        sizeof(struct proxy_output_ctx), "alloc_proxy_output");
 
+	AVCodecContext *st_codec;
 	char fname[FILE_MAX];
 	int ffmpeg_quality;
 
@@ -486,21 +495,14 @@ static struct proxy_output_ctx *alloc_proxy_output_ffmpeg(
 	rv->of = avformat_alloc_context();
 	rv->of->oformat = av_guess_format("avi", NULL, NULL);
 
-#ifdef FFMPEG5
-	av_dict_set(&rv->of->metadata, "filename", fname, 0);
-#else
-	BLI_strncpy(rv->of->filename, fname, sizeof(rv->of->filename));
-#endif
-
-	fprintf(stderr, "Starting work on proxy: %s\n", rv->of->filename);
+	fprintf(stderr, "Starting work on proxy: %s\n", fname);
 
 	rv->st = avformat_new_stream(rv->of, NULL);
 	rv->st->id = 0;
 
-	/* Proxy code disabled on FFmpeg 5+ due to API changes */
-#ifndef FFMPEG5
-	rv->c = st->codec;
-	if (!rv->c) { av_free(rv->of); return NULL; }
+	st_codec = st->codec;
+	if (!st_codec) { av_free(rv->of); MEM_freeN(rv); return NULL; }
+	rv->c = st_codec;
 	rv->c->codec_type = AVMEDIA_TYPE_VIDEO;
 	rv->c->codec_id = AV_CODEC_ID_MJPEG;
 	rv->c->width = width;
@@ -513,6 +515,7 @@ static struct proxy_output_ctx *alloc_proxy_output_ffmpeg(
 		fprintf(stderr, "No ffmpeg MJPEG encoder available? "
 		        "Proxy not built!\n");
 		av_free(rv->of);
+		MEM_freeN(rv);
 		return NULL;
 	}
 
@@ -525,7 +528,7 @@ static struct proxy_output_ctx *alloc_proxy_output_ffmpeg(
 
 	rv->c->sample_aspect_ratio =
 	    rv->st->sample_aspect_ratio =
-	        st->codec->sample_aspect_ratio;
+	        st_codec->sample_aspect_ratio;
 
 	rv->c->time_base.den = 25;
 	rv->c->time_base.num = 1;
@@ -545,16 +548,16 @@ static struct proxy_output_ctx *alloc_proxy_output_ffmpeg(
 		fprintf(stderr, "Couldn't open outputfile! "
 		        "Proxy not built!\n");
 		av_free(rv->of);
-		return 0;
+		MEM_freeN(rv);
+		return NULL;
 	}
 
 	avcodec_open2(rv->c, rv->codec, NULL);
 
-	#ifndef FFMPEG5
-	rv->orig_height = av_get_cropped_height_from_codec(st->codec);
+	rv->orig_height = av_get_cropped_height_from_codec(st_codec);
 
-	if (st->codec->width != width || STREAM_CODEC(st)->height != height ||
-	    STREAM_CODEC(st)->pix_fmt != rv->c->pix_fmt)
+	if (st_codec->width != width || st_codec->height != height ||
+	    st_codec->pix_fmt != rv->c->pix_fmt)
 	{
 		rv->frame = av_frame_alloc();
 		avpicture_fill((AVPicture *) rv->frame,
@@ -565,9 +568,9 @@ static struct proxy_output_ctx *alloc_proxy_output_ffmpeg(
 		               rv->c->pix_fmt, round_up(width, 16), height);
 
 		rv->sws_ctx = sws_getContext(
-		        st->codec->width,
+		        st_codec->width,
 		        rv->orig_height,
-		        st->codec->pix_fmt,
+		        st_codec->pix_fmt,
 		        width, height,
 		        rv->c->pix_fmt,
 		        SWS_FAST_BILINEAR | SWS_PRINT_INFO,
@@ -578,16 +581,11 @@ static struct proxy_output_ctx *alloc_proxy_output_ffmpeg(
 		fprintf(stderr, "Couldn't set output parameters? "
 		        "Proxy not built!\n");
 		av_free(rv->of);
-		return 0;
+		MEM_freeN(rv);
+		return NULL;
 	}
 
 	return rv;
-#else
-	/* FFmpeg5: proxy not supported - free resources */
-	av_free(rv->of);
-	MEM_freeN(rv);
-	return NULL;
-#endif
 }
 
 static int add_to_proxy_output_ffmpeg(
@@ -701,6 +699,8 @@ static void free_proxy_output_ffmpeg(struct proxy_output_ctx *ctx,
 
 	MEM_freeN(ctx);
 }
+
+#endif /* !FFMPEG5 */
 
 typedef struct FFmpegIndexBuilderContext {
 	int anim_type;

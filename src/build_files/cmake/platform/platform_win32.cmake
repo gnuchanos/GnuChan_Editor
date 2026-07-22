@@ -588,11 +588,22 @@ endif()
 
 if(WITH_IMAGE_OPENJPEG)
 	set(OPENJPEG ${LIBDIR}/openjpeg)
-	set(OPENJPEG_INCLUDE_DIRS ${OPENJPEG}/include/openjpeg-2.4)
-	if(NOT EXISTS "${OPENJPEG_INCLUDE_DIRS}")
-	# when not found, could be an older lib folder with openjpeg 2.3
-	# to ease the transition period, fall back if 2.4 is not found.
-	set(OPENJPEG_INCLUDE_DIRS ${OPENJPEG}/include/openjpeg-2.3)
+	# Try multiple OpenJPEG include path variants
+	if(EXISTS "${OPENJPEG}/include/openjpeg-2.5")
+		set(OPENJPEG_INCLUDE_DIRS ${OPENJPEG}/include/openjpeg-2.5)
+	elseif(EXISTS "${OPENJPEG}/include/openjpeg-2.4")
+		set(OPENJPEG_INCLUDE_DIRS ${OPENJPEG}/include/openjpeg-2.4)
+	elseif(EXISTS "${OPENJPEG}/include/openjpeg-2.3")
+		set(OPENJPEG_INCLUDE_DIRS ${OPENJPEG}/include/openjpeg-2.3)
+	else()
+		# Fallback - just use the include directory base
+		set(OPENJPEG_INCLUDE_DIRS ${OPENJPEG}/include/openjpeg-2.4)
+	endif()
+	# Also try the base include dir for newer OpenJPEG which puts openjpeg.h directly
+	if(NOT EXISTS "${OPENJPEG_INCLUDE_DIRS}/openjpeg.h")
+		if(EXISTS "${OPENJPEG}/include/openjpeg.h")
+			set(OPENJPEG_INCLUDE_DIRS ${OPENJPEG}/include)
+		endif()
 	endif()
 	set(OPENJPEG_LIBRARIES ${OPENJPEG}/lib/openjp2.lib)
 endif()

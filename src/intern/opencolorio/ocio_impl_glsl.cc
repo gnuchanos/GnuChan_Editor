@@ -56,19 +56,16 @@ static const int LUT3D_EDGE_SIZE = 64;
 
 extern "C" char datatoc_gpu_shader_display_transform_glsl[];
 
-/* OCIO 2.3+ GPU shader API compat: Processor GPU methods moved to a separate path.
- * We provide wrappers that work with both OCIO < 2.3 and >= 2.3. */
+/* OCIO 2.3+ GPU shader API compat: GpuShaderDesc::Create() -> GpuShaderDesc::CreateShaderDesc().
+ * In OCIO 2.3, Processor GPU methods (getGpuLut3D, getGpuShaderText, etc.) are accessed directly
+ * on the Processor, not via getGpuShaderCreator (which was removed). */
 #if OCIO_VERSION_HEX >= 0x02030000
-/* In OCIO 2.3, GpuShaderDesc::Create() -> GpuShaderDesc::CreateShaderDesc() */
 #  define OCIO_CREATE_GPU_SHADER_DESC() GpuShaderDesc::CreateShaderDesc()
-/* In OCIO 2.3, Processor GPU methods are accessed via getGpuShaderCreator() */
-#  define OCIO_PROCESSOR_GET_LUT3D_CACHE_ID(p, sd) (p)->getGpuShaderCreator()->getGpuLut3DCacheID(sd)
-#  define OCIO_PROCESSOR_GET_LUT3D(p, lut, sd)     (p)->getGpuShaderCreator()->getGpuLut3D(lut, sd)
-#  define OCIO_PROCESSOR_GET_SHADER_TEXT_CACHE_ID(p, sd) (p)->getGpuShaderCreator()->getGpuShaderTextCacheID(sd)
-#  define OCIO_PROCESSOR_GET_SHADER_TEXT(p, sd)    (p)->getGpuShaderCreator()->getGpuShaderText(sd)
-/* GpuShaderDesc methods in 2.3 */
-#  define GPU_SHADER_DESC_SET_LUT_EDGE_LEN(sd, n)  ((void)0) /* set via GpuShaderCreator instead */
-/* Processor::getGpuShaderCreator was renamed to getGpuShaderCreator in OCIO 2.3 */
+#  define OCIO_PROCESSOR_GET_LUT3D_CACHE_ID(p, sd) (p)->getGpuLut3DCacheID(sd)
+#  define OCIO_PROCESSOR_GET_LUT3D(p, lut, sd)     (p)->getGpuLut3D(lut, sd)
+#  define OCIO_PROCESSOR_GET_SHADER_TEXT_CACHE_ID(p, sd) (p)->getGpuShaderTextCacheID(sd)
+#  define OCIO_PROCESSOR_GET_SHADER_TEXT(p, sd)    (p)->getGpuShaderText(sd)
+#  define GPU_SHADER_DESC_SET_LUT_EDGE_LEN(sd, n)  ((void)0) /* set via GpuShaderDesc instead */
 #else
 #  define OCIO_CREATE_GPU_SHADER_DESC() GpuShaderDesc::Create()
 #  define OCIO_PROCESSOR_GET_LUT3D_CACHE_ID(p, sd) (p)->getGpuLut3DCacheID(sd)
