@@ -125,7 +125,7 @@ jobs:
         id: cache-libs
         uses: actions/cache@v4
         with:
-          path: ${{ github.workspace }}/../lib/win64_vc15
+          path: ${{ github.workspace }}/lib/win64_vc15
           key: win64-vc15-libs-v2
           restore-keys: win64-vc15-libs-
 
@@ -137,8 +137,8 @@ jobs:
         if: steps.cache-libs.outputs.cache-hit != 'true'
         shell: cmd
         run: |
-          mkdir "%GITHUB_WORKSPACE%\..\lib"
-          cd "%GITHUB_WORKSPACE%\..\lib"
+          mkdir "%GITHUB_WORKSPACE%\lib"
+          cd "%GITHUB_WORKSPACE%\lib"
           svn checkout --depth=empty https://svn.blender.org/svnroot/bf-blender/trunk/lib/win64_vc15 win64_vc15
           cd win64_vc15
           for %%d in (alembic boost fftw3 freetype imath jack jpeg openal opencollada opencolorio openexr openimageio openjpeg opensubdiv openvdb osl png pthreads python sdl tbb tiff webp zlib) do (
@@ -162,7 +162,7 @@ jobs:
             -DWITH_CODEC_FFMPEG=ON ^
             -DWITH_SDL=ON ^
             -DWITH_OPENAL=ON ^
-            -DWITH_INTERNATIONAL=ON ^
+            -DWITH_INTERNATIONAL=OFF ^
             -DWITH_PYTHON_INSTALL=OFF ^
             -DWITH_RAYOPTIMIZATION=ON ^
             -DWITH_OPENMP=ON ^
