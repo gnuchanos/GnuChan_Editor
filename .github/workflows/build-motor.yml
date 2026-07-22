@@ -127,8 +127,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/lib/win64_vc15
-          key: win64-vc15-libs-v2
-          restore-keys: win64-vc15-libs-
+          key: win64-vc15-libs-v3
+          restore-keys: |
+            win64-vc15-libs-v3-
+            win64-vc15-libs-
 
       - name: Install SVN
         if: steps.cache-libs.outputs.cache-hit != 'true'
@@ -146,15 +148,11 @@ jobs:
           do {
             $retries--
             try {
-              if (Test-Path "$libDir\.svn") {
-                svn cleanup "$libDir" 2>&1 | Out-Null
-                svn cleanup --remove-unversioned "$libDir" 2>&1 | Out-Null
-              } else {
-                if (Test-Path "$libDir") { Remove-Item -Recurse -Force "$libDir" }
-                New-Item -ItemType Directory -Force -Path "$env:GITHUB_WORKSPACE\lib" | Out-Null
-                svn checkout --depth=empty $svnUrl "$libDir" 2>&1 | Out-Null
-              }
-              # Single SVN update with all dirs at once (1 HTTP request instead of 24)
+              # Full clean checkout on each retry to avoid partial-download issues
+              if (Test-Path "$libDir") { Remove-Item -Recurse -Force "$libDir" -ErrorAction SilentlyContinue }
+              New-Item -ItemType Directory -Force -Path "$env:GITHUB_WORKSPACE\lib" | Out-Null
+              # Sparse checkout — get only the folders we need, in a single connection
+              svn checkout --depth=empty $svnUrl "$libDir" 2>&1 | Out-Null
               cd "$libDir"
               $dirList = $dirs -join " "
               svn update --set-depth=infinity $dirList 2>&1
@@ -166,7 +164,18 @@ jobs:
             if (-not $ok -and $retries -gt 0) { Start-Sleep -Seconds 30 }
           } while (-not $ok -and $retries -ge 0)
 
-          if (-not $ok) { exit 1 }
+          if (-not $ok) {
+            Write-Error "Failed to download precompiled libs after 3 retries"
+            exit 1
+          }
+          # Verify critical files exist
+          $critical = @("$libDir\boost\include\boost\version.hpp", "$libDir\python\311\include\Python.h")
+          foreach ($f in $critical) {
+            if (-not (Test-Path $f)) {
+              Write-Error "Missing critical file: $f"
+              exit 1
+            }
+          }
 
       - name: Configure
         shell: cmd
