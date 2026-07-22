@@ -135,15 +135,36 @@ jobs:
 
       - name: Download precompiled libs (win64_vc15)
         if: steps.cache-libs.outputs.cache-hit != 'true'
-        shell: cmd
+        shell: pwsh
         run: |
-          mkdir "%GITHUB_WORKSPACE%\lib"
-          cd "%GITHUB_WORKSPACE%\lib"
-          svn checkout --depth=empty https://svn.blender.org/svnroot/bf-blender/trunk/lib/win64_vc15 win64_vc15
-          cd win64_vc15
-          for %%d in (alembic boost fftw3 freetype imath jack jpeg openal opencollada opencolorio openexr openimageio openjpeg opensubdiv openvdb osl png pthreads python sdl tbb tiff webp zlib) do (
-            svn update --set-depth=infinity %%d
-          )
+          $libDir = "$env:GITHUB_WORKSPACE\lib\win64_vc15"
+          $svnUrl = "https://svn.blender.org/svnroot/bf-blender/trunk/lib/win64_vc15"
+          $dirs = @("alembic","boost","fftw3","freetype","imath","jack","jpeg","openal","opencollada","opencolorio","openexr","openimageio","openjpeg","opensubdiv","openvdb","osl","png","pthreads","python","sdl","tbb","tiff","webp","zlib")
+
+          $retries = 3
+          do {
+            $retries--
+            try {
+              if (Test-Path "$libDir\.svn") {
+                svn cleanup "$libDir" 2>&1 | Out-Null
+                svn cleanup --remove-unversioned "$libDir" 2>&1 | Out-Null
+              } else {
+                if (Test-Path "$libDir") { Remove-Item -Recurse -Force "$libDir" }
+                New-Item -ItemType Directory -Force -Path "$env:GITHUB_WORKSPACE\lib" | Out-Null
+                svn checkout --depth=empty $svnUrl "$libDir" 2>&1 | Out-Null
+              }
+              # Single SVN update with all dirs at once (1 HTTP request instead of 24)
+              cd "$libDir"
+              svn update --set-depth=infinity $($dirs.ForEach({ "`"$_`"" }) -join " ") 2>&1
+              $ok = $LASTEXITCODE -eq 0
+            } catch {
+              $ok = $false
+              Write-Warning "SVN failed ($retries retries left): $_"
+            }
+            if (-not $ok -and $retries -gt 0) { Start-Sleep -Seconds 30 }
+          } while (-not $ok -and $retries -ge 0)
+
+          if (-not $ok) { exit 1 }
 
       - name: Configure
         shell: cmd
