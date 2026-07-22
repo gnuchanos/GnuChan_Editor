@@ -56,6 +56,28 @@ static const int LUT3D_EDGE_SIZE = 64;
 
 extern "C" char datatoc_gpu_shader_display_transform_glsl[];
 
+/* OCIO 2.3+ GPU shader API compat: Processor GPU methods moved to a separate path.
+ * We provide wrappers that work with both OCIO < 2.3 and >= 2.3. */
+#if OCIO_VERSION_HEX >= 0x02030000
+/* In OCIO 2.3, GpuShaderDesc::Create() -> GpuShaderDesc::CreateShaderDesc() */
+#  define OCIO_CREATE_GPU_SHADER_DESC() GpuShaderDesc::CreateShaderDesc()
+/* In OCIO 2.3, Processor GPU methods are accessed via getGpuShaderCreator() */
+#  define OCIO_PROCESSOR_GET_LUT3D_CACHE_ID(p, sd) (p)->getGpuShaderCreator()->getGpuLut3DCacheID(sd)
+#  define OCIO_PROCESSOR_GET_LUT3D(p, lut, sd)     (p)->getGpuShaderCreator()->getGpuLut3D(lut, sd)
+#  define OCIO_PROCESSOR_GET_SHADER_TEXT_CACHE_ID(p, sd) (p)->getGpuShaderCreator()->getGpuShaderTextCacheID(sd)
+#  define OCIO_PROCESSOR_GET_SHADER_TEXT(p, sd)    (p)->getGpuShaderCreator()->getGpuShaderText(sd)
+/* GpuShaderDesc methods in 2.3 */
+#  define GPU_SHADER_DESC_SET_LUT_EDGE_LEN(sd, n)  ((void)0) /* set via GpuShaderCreator instead */
+/* Processor::getGpuShaderCreator was renamed to getGpuShaderCreator in OCIO 2.3 */
+#else
+#  define OCIO_CREATE_GPU_SHADER_DESC() GpuShaderDesc::Create()
+#  define OCIO_PROCESSOR_GET_LUT3D_CACHE_ID(p, sd) (p)->getGpuLut3DCacheID(sd)
+#  define OCIO_PROCESSOR_GET_LUT3D(p, lut, sd)     (p)->getGpuLut3D(lut, sd)
+#  define OCIO_PROCESSOR_GET_SHADER_TEXT_CACHE_ID(p, sd) (p)->getGpuShaderTextCacheID(sd)
+#  define OCIO_PROCESSOR_GET_SHADER_TEXT(p, sd)    (p)->getGpuShaderText(sd)
+#  define GPU_SHADER_DESC_SET_LUT_EDGE_LEN(sd, n)  sd->setLut3DEdgeLen(n)
+#endif
+
 /* **** OpenGL drawing routines using GLSL for color space transform ***** */
 
 typedef struct OCIO_GLSLDrawState {
@@ -291,10 +313,10 @@ bool OCIOImpl::setupGLSLDraw(OCIO_GLSLDrawState **state_r, OCIO_ConstProcessorRc
 	}
 
 	/* Step 1: Create a GPU Shader Description */
-	GpuShaderDescRcPtr shaderDesc = GpuShaderDesc::Create();
+	GpuShaderDescRcPtr shaderDesc = OCIO_CREATE_GPU_SHADER_DESC();
 	shaderDesc->setLanguage(GPU_LANGUAGE_GLSL_1_3);
 	shaderDesc->setFunctionName("OCIODisplay");
-	shaderDesc->setLut3DEdgeLen(LUT3D_EDGE_SIZE);
+	GPU_SHADER_DESC_SET_LUT_EDGE_LEN(shaderDesc, LUT3D_EDGE_SIZE);
 
 	if (use_curve_mapping) {
 		if (state->curve_mapping_cache_id != curve_mapping_settings->cache_id) {
@@ -306,10 +328,10 @@ bool OCIOImpl::setupGLSLDraw(OCIO_GLSLDrawState **state_r, OCIO_ConstProcessorRc
 	}
 
 	/* Step 2: Compute the 3D LUT */
-	std::string lut3dCacheID = ocio_processor->getGpuLut3DCacheID(*shaderDesc);
+	std::string lut3dCacheID = OCIO_PROCESSOR_GET_LUT3D_CACHE_ID(ocio_processor, *shaderDesc);
 	if (lut3dCacheID != state->lut3dcacheid) {
 		state->lut3dcacheid = lut3dCacheID;
-		ocio_processor->getGpuLut3D(state->lut3d, *shaderDesc);
+		OCIO_PROCESSOR_GET_LUT3D(ocio_processor, state->lut3d, *shaderDesc);
 
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_3D, state->lut3d_texture);
@@ -319,7 +341,7 @@ bool OCIOImpl::setupGLSLDraw(OCIO_GLSLDrawState **state_r, OCIO_ConstProcessorRc
 	}
 
 	/* Step 3: Compute the Shader */
-	std::string shaderCacheID = ocio_processor->getGpuShaderTextCacheID(*shaderDesc);
+	std::string shaderCacheID = OCIO_PROCESSOR_GET_SHADER_TEXT_CACHE_ID(ocio_processor, *shaderDesc);
 	if (state->program == 0 ||
 	    shaderCacheID != state->shadercacheid ||
 	    use_predivide != state->predivide_used ||
@@ -358,7 +380,7 @@ bool OCIOImpl::setupGLSLDraw(OCIO_GLSLDrawState **state_r, OCIO_ConstProcessorRc
 			os << "#define USE_CURVE_MAPPING\n";
 		}
 
-		os << ocio_processor->getGpuShaderText(*shaderDesc) << "\n";
+		os << OCIO_PROCESSOR_GET_SHADER_TEXT(ocio_processor, *shaderDesc) << "\n";
 		os << datatoc_gpu_shader_display_transform_glsl;
 
 		state->ocio_shader = compileShaderText(GL_FRAGMENT_SHADER, os.str().c_str());

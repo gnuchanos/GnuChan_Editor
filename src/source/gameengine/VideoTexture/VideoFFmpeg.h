@@ -46,12 +46,10 @@ extern "C" {
 
 #ifdef FFMPEG5
 /* FFmpeg 5+ wraps: av_find_input_format returns const AVInputFormat* */
-static inline const AVInputFormat *ffmpeg_av_find_input_format_cpp(const char *name) { return av_find_input_format_cpp(name); }
-/* av_register_all is a no-op */
+static inline AVInputFormat *av_find_input_format_cpp(const char *name) { return (AVInputFormat *)av_find_input_format(name); }
 #else
-static inline AVInputFormat *ffmpeg_av_find_input_format_cpp(const char *name) { return av_find_input_format_cpp(name); }
+static inline AVInputFormat *av_find_input_format_cpp(const char *name) { return av_find_input_format(name); }
 #endif
-static inline AVInputFormat *av_find_input_format_cpp(const char *name) { return (AVInputFormat *)ffmpeg_av_find_input_format_cpp(name); }
 
 #include "VideoBase.h"
 

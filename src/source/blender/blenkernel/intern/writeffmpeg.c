@@ -984,8 +984,10 @@ static int start_ffmpeg_impl(FFMpegContext *context, struct RenderData *rd, int 
 #ifndef FFMPEG5
 	BLI_strncpy(of->filename, name, sizeof(of->filename));
 #else
+	/* FFmpeg 5+: AVFormatContext.filename removed - use url field */
 	av_dict_set(&opts, "output_filename", name, 0);
 #endif
+	(void)opts; /* prevent unused warning */
 	/* set the codec to the user's selection */
 	switch (context->ffmpeg_type) {
 		case FFMPEG_AVI:

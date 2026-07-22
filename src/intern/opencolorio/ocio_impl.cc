@@ -47,7 +47,29 @@ using namespace OCIO_NAMESPACE;
 #  define __func__ __FUNCTION__
 #endif
 
-/* NOTE: This is because OCIO 1.1.0 has a bug which makes default
+/* ============================================================
+ * OCIO version compatibility
+ * ============================================================ */
+/* OCIO 2.3+: getDefaultCPUProcessor() replaces direct apply() on Processor */
+#if OCIO_VERSION_HEX >= 0x02030000
+#  define OCIO_PROCESSOR_APPLY(p, img)    (p)->getDefaultCPUProcessor()->apply(*(PackedImageDesc *)(img))
+#  define OCIO_PROCESSOR_APPLY_RGB(p, px) (p)->getDefaultCPUProcessor()->applyRGB(px)
+#  define OCIO_PROCESSOR_APPLY_RGBA(p, px)(p)->getDefaultCPUProcessor()->applyRGBA(px)
+#  define OCIO_GET_DISPLAY_COLORSPACE(cfg, display, view) _ociov23_getDisplayColorSpaceName(cfg, display, view)
+#  define OCIO_PACKED_IMAGE_DESC_ARGS 6
+/* DisplayTransform typedef was removed; use the full type */
+typedef OCIO_NAMESPACE::DisplayTransformRcPtr DisplayTransformRcPtrAlias;
+#  define DISPLAY_TRANSFORM_RCPTR DisplayTransformRcPtrAlias
+#else
+#  define OCIO_PROCESSOR_APPLY(p, img)    (p)->apply(*(PackedImageDesc *)(img))
+#  define OCIO_PROCESSOR_APPLY_RGB(p, px) (p)->applyRGB(px)
+#  define OCIO_PROCESSOR_APPLY_RGBA(p, px)(p)->applyRGBA(px)
+#  define OCIO_GET_DISPLAY_COLORSPACE(cfg, display, view) _ociov23_getDisplayColorSpaceName(cfg, display, view)
+#  define OCIO_PACKED_IMAGE_DESC_ARGS 7
+#  define DISPLAY_TRANSFORM_RCPTR DisplayTransformRcPtr
+#endif
+
+/* NOTe: This is because OCIO 1.1.0 has a bug which makes default
  * display to be the one which is first alphabetically.
  *
  * Fix has been submitted as a patch
@@ -70,6 +92,21 @@ static void OCIO_reportException(Exception &exception)
 {
 	OCIO_reportError(exception.what());
 }
+
+#if OCIO_VERSION_HEX >= 0x02030000
+/* In OCIO 2.3, getDisplayColorSpaceName takes (display, viewIndex) not (display, view).
+ * Find index by view name. */
+static const char *_ociov23_getDisplayColorSpaceName(ConstConfigRcPtr cfg, const char *display, const char *view)
+{
+	int numViews = cfg->getNumViews(display);
+	for (int i = 0; i < numViews; i++) {
+		if (strcmp(cfg->getView(display, i), view) == 0) {
+			return cfg->getDisplayColorSpaceName(display, i);
+		}
+	}
+	return cfg->getDisplayColorSpaceName(display, 0);
+}
+#endif
 
 OCIO_ConstConfigRcPtr *OCIOImpl::getCurrentConfig(void)
 {
@@ -319,7 +356,8 @@ const char *OCIOImpl::configGetView(OCIO_ConstConfigRcPtr *config, const char *d
 const char *OCIOImpl::configGetDisplayColorSpaceName(OCIO_ConstConfigRcPtr *config, const char *display, const char *view)
 {
 	try {
-		return (*(ConstConfigRcPtr *) config)->getDisplayColorSpaceName(display, view);
+		ConstConfigRcPtr cfg = *(ConstConfigRcPtr *)config;
+		return OCIO_GET_DISPLAY_COLORSPACE(cfg, display, view);
 	}
 	catch (Exception &exception) {
 		OCIO_reportException(exception);
@@ -469,7 +507,8 @@ OCIO_ConstProcessorRcPtr *OCIOImpl::configGetProcessor(OCIO_ConstConfigRcPtr *co
 void OCIOImpl::processorApply(OCIO_ConstProcessorRcPtr *processor, OCIO_PackedImageDesc *img)
 {
 	try {
-		(*(ConstProcessorRcPtr *) processor)->apply(*(PackedImageDesc *) img);
+		ConstProcessorRcPtr p = *(ConstProcessorRcPtr *) processor;
+		OCIO_PROCESSOR_APPLY(p, img);
 	}
 	catch (Exception &exception) {
 		OCIO_reportException(exception);
@@ -497,7 +536,8 @@ void OCIOImpl::processorApply_predivide(OCIO_ConstProcessorRcPtr *processor, OCI
 			}
 		}
 		else {
-			(*(ConstProcessorRcPtr *) processor)->apply(*img);
+			ConstProcessorRcPtr p = *(ConstProcessorRcPtr *) processor;
+			OCIO_PROCESSOR_APPLY(p, img);
 		}
 	}
 	catch (Exception &exception) {
@@ -507,18 +547,21 @@ void OCIOImpl::processorApply_predivide(OCIO_ConstProcessorRcPtr *processor, OCI
 
 void OCIOImpl::processorApplyRGB(OCIO_ConstProcessorRcPtr *processor, float *pixel)
 {
-	(*(ConstProcessorRcPtr *) processor)->applyRGB(pixel);
+	ConstProcessorRcPtr p = *(ConstProcessorRcPtr *) processor;
+	OCIO_PROCESSOR_APPLY_RGB(p, pixel);
 }
 
 void OCIOImpl::processorApplyRGBA(OCIO_ConstProcessorRcPtr *processor, float *pixel)
 {
-	(*(ConstProcessorRcPtr *) processor)->applyRGBA(pixel);
+	ConstProcessorRcPtr p = *(ConstProcessorRcPtr *) processor;
+	OCIO_PROCESSOR_APPLY_RGBA(p, pixel);
 }
 
 void OCIOImpl::processorApplyRGBA_predivide(OCIO_ConstProcessorRcPtr *processor, float *pixel)
 {
 	if (pixel[3] == 1.0f || pixel[3] == 0.0f) {
-		(*(ConstProcessorRcPtr *) processor)->applyRGBA(pixel);
+		ConstProcessorRcPtr p = *(ConstProcessorRcPtr *) processor;
+		OCIO_PROCESSOR_APPLY_RGBA(p, pixel);
 	}
 	else {
 		float alpha, inv_alpha;
@@ -530,7 +573,8 @@ void OCIOImpl::processorApplyRGBA_predivide(OCIO_ConstProcessorRcPtr *processor,
 		pixel[1] *= inv_alpha;
 		pixel[2] *= inv_alpha;
 
-		(*(ConstProcessorRcPtr *) processor)->applyRGBA(pixel);
+		ConstProcessorRcPtr p = *(ConstProcessorRcPtr *) processor;
+		OCIO_PROCESSOR_APPLY_RGBA(p, pixel);
 
 		pixel[0] *= alpha;
 		pixel[1] *= alpha;
@@ -560,7 +604,7 @@ const char *OCIOImpl::colorSpaceGetFamily(OCIO_ConstColorSpaceRcPtr *cs)
 
 OCIO_DisplayTransformRcPtr *OCIOImpl::createDisplayTransform(void)
 {
-	DisplayTransformRcPtr *dt = OBJECT_GUARDED_NEW(DisplayTransformRcPtr);
+	DISPLAY_TRANSFORM_RCPTR *dt = OBJECT_GUARDED_NEW(DISPLAY_TRANSFORM_RCPTR);
 
 	*dt = DisplayTransform::Create();
 
@@ -569,42 +613,42 @@ OCIO_DisplayTransformRcPtr *OCIOImpl::createDisplayTransform(void)
 
 void OCIOImpl::displayTransformSetInputColorSpaceName(OCIO_DisplayTransformRcPtr *dt, const char *name)
 {
-	(*(DisplayTransformRcPtr *) dt)->setInputColorSpaceName(name);
+	(*(DISPLAY_TRANSFORM_RCPTR *) dt)->setInputColorSpaceName(name);
 }
 
 void OCIOImpl::displayTransformSetDisplay(OCIO_DisplayTransformRcPtr *dt, const char *name)
 {
-	(*(DisplayTransformRcPtr *) dt)->setDisplay(name);
+	(*(DISPLAY_TRANSFORM_RCPTR *) dt)->setDisplay(name);
 }
 
 void OCIOImpl::displayTransformSetView(OCIO_DisplayTransformRcPtr *dt, const char *name)
 {
-	(*(DisplayTransformRcPtr *) dt)->setView(name);
+	(*(DISPLAY_TRANSFORM_RCPTR *) dt)->setView(name);
 }
 
 void OCIOImpl::displayTransformSetDisplayCC(OCIO_DisplayTransformRcPtr *dt, OCIO_ConstTransformRcPtr *t)
 {
-	(*(DisplayTransformRcPtr *) dt)->setDisplayCC(* (ConstTransformRcPtr *) t);
+	(*(DISPLAY_TRANSFORM_RCPTR *) dt)->setDisplayCC(* (ConstTransformRcPtr *) t);
 }
 
 void OCIOImpl::displayTransformSetLinearCC(OCIO_DisplayTransformRcPtr *dt, OCIO_ConstTransformRcPtr *t)
 {
-	(*(DisplayTransformRcPtr *) dt)->setLinearCC(*(ConstTransformRcPtr *) t);
+	(*(DISPLAY_TRANSFORM_RCPTR *) dt)->setLinearCC(*(ConstTransformRcPtr *) t);
 }
 
 void OCIOImpl::displayTransformSetLooksOverride(OCIO_DisplayTransformRcPtr *dt, const char *looks)
 {
-	(*(DisplayTransformRcPtr *) dt)->setLooksOverride(looks);
+	(*(DISPLAY_TRANSFORM_RCPTR *) dt)->setLooksOverride(looks);
 }
 
 void OCIOImpl::displayTransformSetLooksOverrideEnabled(OCIO_DisplayTransformRcPtr *dt, bool enabled)
 {
-	(*(DisplayTransformRcPtr *) dt)->setLooksOverrideEnabled(enabled);
+	(*(DISPLAY_TRANSFORM_RCPTR *) dt)->setLooksOverrideEnabled(enabled);
 }
 
 void OCIOImpl::displayTransformRelease(OCIO_DisplayTransformRcPtr *dt)
 {
-	OBJECT_GUARDED_DELETE((DisplayTransformRcPtr *) dt, DisplayTransformRcPtr);
+	OBJECT_GUARDED_DELETE((DISPLAY_TRANSFORM_RCPTR *) dt, DISPLAY_TRANSFORM_RCPTR);
 }
 
 OCIO_PackedImageDesc *OCIOImpl::createOCIO_PackedImageDesc(float *data, long width, long height, long numChannels,
@@ -612,8 +656,12 @@ OCIO_PackedImageDesc *OCIOImpl::createOCIO_PackedImageDesc(float *data, long wid
 {
 	try {
 		void *mem = MEM_mallocN(sizeof(PackedImageDesc), __func__);
+#if OCIO_PACKED_IMAGE_DESC_ARGS == 7
 		PackedImageDesc *id = new(mem) PackedImageDesc(data, width, height, numChannels, chanStrideBytes, xStrideBytes, yStrideBytes);
-
+#else
+		/* OCIO 2.3: yStrideBytes removed from PackedImageDesc constructor */
+		PackedImageDesc *id = new(mem) PackedImageDesc(data, width, height, numChannels, chanStrideBytes, xStrideBytes);
+#endif
 		return (OCIO_PackedImageDesc *) id;
 	}
 	catch (Exception &exception) {

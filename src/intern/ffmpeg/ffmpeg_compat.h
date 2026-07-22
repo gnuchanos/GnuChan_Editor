@@ -72,7 +72,7 @@
 
 /* ============================================================
  * AVPicture compat: FFmpeg 3+ removed AVPicture entirely.
- * In both C and C++ we simply treat AVPicture as AVFrame. */
+ * In both C and C++ we simply treat AVPicture as AVFrame.
  * ============================================================ */
 #ifdef FFMPEG_NO_AVPICTURE
 #  ifndef __cplusplus
@@ -202,6 +202,27 @@ FFMPEG_INLINE int avcodec_decode_audio4_compat(AVCodecContext *avctx, AVFrame *f
 #  define avcodec_decode_audio4(avctx, frame, got, pkt) avcodec_decode_audio4_compat(avctx, frame, got, pkt)
 
 #endif /* FFMPEG_NEW_API */
+
+/* ============================================================
+ * FF_MIN_BUFFER_SIZE: removed in FFmpeg 4+, provide default
+ * ============================================================ */
+#ifndef FF_MIN_BUFFER_SIZE
+#  define FF_MIN_BUFFER_SIZE 16384
+#endif
+
+#ifndef FFMPEG_HAVE_ENCODE_AUDIO2
+/* FFMPEG_DEF_OPT_VAL_INT / _DOUBLE macros for expert option defaults */
+#  define FFMPEG_DEF_OPT_VAL_INT(o) ((o)->default_val.i64)
+#  define FFMPEG_DEF_OPT_VAL_DOUBLE(o) ((o)->default_val.dbl)
+#else
+#  if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(56, 0, 0)
+#    define FFMPEG_DEF_OPT_VAL_INT(o) ((o)->default_val.i64)
+#    define FFMPEG_DEF_OPT_VAL_DOUBLE(o) ((o)->default_val.dbl)
+#  else
+#    define FFMPEG_DEF_OPT_VAL_INT(o) ((int)((o)->default_val))
+#    define FFMPEG_DEF_OPT_VAL_DOUBLE(o) ((double)((o)->default_val))
+#  endif
+#endif
 
 /* ============================================================
  * avcodec_close wrapper: in FFmpeg 5+ we free the context
@@ -390,20 +411,32 @@ FFMPEG_INLINE void ff_compat_deinterlace_line_inplace(uint8_t *lum_m4, uint8_t *
     }
 }
 
-/* avpicture_deinterlace implementation using local deinterlace */
+/* avpicture_deinterlace implementation using local deinterlace
+ *
+ * Deinterlaces a frame by applying a 5-tap FIR filter vertically.
+ * For each output row y: out[y] = clamp((-in[y-2] + 4*in[y-1] + 2*in[y] + 4*in[y+1] - in[y+2]) / 8)
+ * Edge rows (y=0,1,h-2,h-1) are copied unchanged.
+ */
 FFMPEG_INLINE int avpicture_deinterlace(
     AVFrame *dst, const AVFrame *src,
     enum AVPixelFormat pix_fmt, int width, int height)
 {
-    int i;
+    int i, y, x;
+    const uint8_t *cm = ff_compat_crop_tab + FFMPEG_COMPAT_MAX_NEG_CROP;
+
     if (pix_fmt != AV_PIX_FMT_YUV420P && pix_fmt != AV_PIX_FMT_YUVJ420P &&
         pix_fmt != AV_PIX_FMT_YUV422P && pix_fmt != AV_PIX_FMT_YUVJ422P &&
         pix_fmt != AV_PIX_FMT_YUV444P && pix_fmt != AV_PIX_FMT_YUV411P &&
         pix_fmt != AV_PIX_FMT_GRAY8)
         return -1;
     if ((width & 3) != 0 || (height & 3) != 0) return -1;
+
     for (i = 0; i < 3; i++) {
         int w2 = width, h2 = height;
+        int src_stride, dst_stride;
+        const uint8_t *src_data;
+        uint8_t *dst_data;
+
         if (i == 1) {
             switch (pix_fmt) {
             case AV_PIX_FMT_YUVJ420P: case AV_PIX_FMT_YUV420P: w2 >>= 1; h2 >>= 1; break;
@@ -413,16 +446,41 @@ FFMPEG_INLINE int avpicture_deinterlace(
             }
             if (pix_fmt == AV_PIX_FMT_GRAY8) break;
         }
-        if (src == (const AVFrame *)dst) {
-            ff_compat_deinterlace_line_inplace(dst->data[i], dst->data[i],
-                dst->data[i], dst->data[i], dst->data[i], w2);
-            (void)h2; (void)i;
-            return -1; /* inplace not fully implemented - fallback to non-inplace */
+
+        src_data = src->data[i];
+        dst_data = dst->data[i];
+        src_stride = src->linesize[i];
+        dst_stride = dst->linesize[i];
+
+        if (h2 < 5) {
+            /* Too short - just copy */
+            for (y = 0; y < h2; y++)
+                memcpy(dst_data + y * dst_stride, src_data + y * src_stride, (size_t)w2);
+            continue;
         }
-        else {
-            ff_compat_deinterlace_line(dst->data[i], dst->linesize[i],
-                src->data[i], src->linesize[i], w2, h2);
+
+        /* First 2 rows: copy */
+        for (y = 0; y < 2; y++)
+            memcpy(dst_data + y * dst_stride, src_data + y * src_stride, (size_t)w2);
+
+        /* Middle rows: 5-tap FIR filter */
+        for (y = 2; y < h2 - 2; y++) {
+            const uint8_t *l_m4 = src_data + (y - 2) * src_stride;
+            const uint8_t *l_m3 = src_data + (y - 1) * src_stride;
+            const uint8_t *l_m2 = src_data + (y - 0) * src_stride;
+            const uint8_t *l_m1 = src_data + (y + 1) * src_stride;
+            const uint8_t *l    = src_data + (y + 2) * src_stride;
+            uint8_t *out = dst_data + y * dst_stride;
+
+            for (x = 0; x < w2; x++) {
+                int sum = -l_m4[x] + (l_m3[x] << 2) + (l_m2[x] << 1) + (l_m1[x] << 2) - l[x];
+                out[x] = cm[(sum + 4) >> 3];
+            }
         }
+
+        /* Last 2 rows: copy */
+        for (y = h2 - 2; y < h2; y++)
+            memcpy(dst_data + y * dst_stride, src_data + y * src_stride, (size_t)w2);
     }
     return 0;
 }

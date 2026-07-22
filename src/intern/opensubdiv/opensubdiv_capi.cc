@@ -33,9 +33,20 @@
 #include <opensubdiv/osd/cpuGLVertexBuffer.h>
 #include <opensubdiv/osd/cpuEvaluator.h>
 
+/* OPENSUBDIV_HAS_OPENMP was removed in OpenSubdiv 3.4+ (replaced by TBB).
+ * ompEvaluator.h is also gone in OSD 3.4+. */
 #if defined(OPENSUBDIV_HAS_OPENMP) && OPENSUBDIV_HAS_OPENMP
-#  include <opensubdiv/osd/ompEvaluator.h>
+#  if !defined(OPENSUBDIV_VERSION_MAJOR) || (OPENSUBDIV_VERSION_MAJOR < 3) || \
+      (OPENSUBDIV_VERSION_MAJOR == 3 && defined(OPENSUBDIV_VERSION_MINOR) && OPENSUBDIV_VERSION_MINOR < 4)
+#    include <opensubdiv/osd/ompEvaluator.h>
+#    define OSD_HAS_OMP_EVALUATOR 1
+#  endif
 #endif  /* OPENSUBDIV_HAS_OPENMP */
+
+#ifndef OSD_HAS_OMP_EVALUATOR
+#  undef OPENSUBDIV_HAS_OPENMP
+#endif
+#undef OSD_HAS_OMP_EVALUATOR
 
 #ifdef OPENSUBDIV_HAS_OPENCL
 #  include <opensubdiv/osd/clGLVertexBuffer.h>

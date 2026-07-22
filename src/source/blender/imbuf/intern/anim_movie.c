@@ -507,12 +507,14 @@ static int startffmpeg(struct anim *anim)
 	/* Find the video stream */
 	videoStream = -1;
 
-	for (i = 0; i < pFormatCtx->nb_streams; i++)
-		if (#ifdef FFMPEG5
-		(pFormatCtx->streams[i]->codecpar->codec_type)
+	for (i = 0; i < pFormatCtx->nb_streams; i++) {
+		AVMediaType codec_type;
+#ifdef FFMPEG5
+		codec_type = pFormatCtx->streams[i]->codecpar->codec_type;
 #else
-	pFormatCtx->streams[i]->codec->codec_type
-#endif == AVMEDIA_TYPE_VIDEO) {
+		codec_type = pFormatCtx->streams[i]->codec->codec_type;
+#endif
+		if (codec_type == AVMEDIA_TYPE_VIDEO) {
 			if (streamcount > 0) {
 				streamcount--;
 				continue;
@@ -520,6 +522,7 @@ static int startffmpeg(struct anim *anim)
 			videoStream = i;
 			break;
 		}
+	}
 
 	if (videoStream == -1) {
 		avformat_close_input(&pFormatCtx);
@@ -872,11 +875,10 @@ static int ffmpeg_decode_video_frame(struct anim *anim)
 				av_log(anim->pFormatCtx,
 				       AV_LOG_DEBUG,
 				       "  FRAME DONE: next_pts=%lld "
-				       "pkt_pts=%lld, guessed_pts=%lld\n",
+				       "pts=%lld, guessed_pts=%lld\n",
 				       (anim->pFrame->pts == AV_NOPTS_VALUE) ?
 				       -1 : (long long int)anim->pFrame->pts,
-				       (anim->pFrame->pkt_pts == AV_NOPTS_VALUE) ?
-				       -1 : (long long int)anim->pFrame->pkt_pts,
+				       -1,
 				       (long long int)anim->next_pts);
 				break;
 			}
@@ -911,11 +913,10 @@ static int ffmpeg_decode_video_frame(struct anim *anim)
 			av_log(anim->pFormatCtx,
 			       AV_LOG_DEBUG,
 			       "  FRAME DONE (after EOF): next_pts=%lld "
-			       "pkt_pts=%lld, guessed_pts=%lld\n",
+			       "pts=%lld, guessed_pts=%lld\n",
 			       (anim->pFrame->pts == AV_NOPTS_VALUE) ?
 			       -1 : (long long int)anim->pFrame->pts,
-			       (anim->pFrame->pkt_pts == AV_NOPTS_VALUE) ?
-			       -1 : (long long int)anim->pFrame->pkt_pts,
+			       -1,
 			       (long long int)anim->next_pts);
 			rval = 0;
 		}

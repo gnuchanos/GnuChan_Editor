@@ -486,7 +486,11 @@ static struct proxy_output_ctx *alloc_proxy_output_ffmpeg(
 	rv->of = avformat_alloc_context();
 	rv->of->oformat = av_guess_format("avi", NULL, NULL);
 
+#ifdef FFMPEG5
+	av_dict_set(&rv->of->metadata, "filename", fname, 0);
+#else
 	BLI_strncpy(rv->of->filename, fname, sizeof(rv->of->filename));
+#endif
 
 	fprintf(stderr, "Starting work on proxy: %s\n", rv->of->filename);
 
@@ -759,12 +763,14 @@ static IndexBuildContext *index_ffmpeg_create_context(struct anim *anim, IMB_Tim
 
 	/* Find the video stream */
 	context->videoStream = -1;
-	for (i = 0; i < context->iFormatCtx->nb_streams; i++)
-		if (#ifdef FFMPEG5
-		context->iFormatCtx->streams[i]->codecpar->codec_type
+	for (i = 0; i < context->iFormatCtx->nb_streams; i++) {
+		AVMediaType codec_type;
+#ifdef FFMPEG5
+		codec_type = context->iFormatCtx->streams[i]->codecpar->codec_type;
 #else
-		context->iFormatCtx->streams[i]->codec->codec_type
-#endif == AVMEDIA_TYPE_VIDEO) {
+		codec_type = context->iFormatCtx->streams[i]->codec->codec_type;
+#endif
+		if (codec_type == AVMEDIA_TYPE_VIDEO) {
 			if (streamcount > 0) {
 				streamcount--;
 				continue;
@@ -772,6 +778,7 @@ static IndexBuildContext *index_ffmpeg_create_context(struct anim *anim, IMB_Tim
 			context->videoStream = i;
 			break;
 		}
+	}
 
 	if (context->videoStream == -1) {
 		avformat_close_input(&context->iFormatCtx);

@@ -295,19 +295,22 @@ static int isffmpeg(const char *filename)
 
 	/* Find the first video stream */
 	videoStream = -1;
-	for (i = 0; i < pFormatCtx->nb_streams; i++)
-		if (pFormatCtx->streams[i] &&
-		    #ifdef FFMPEG5
-		pFormatCtx->streams[i]->codecpar &&
-		    (pFormatCtx->streams[i]->codecpar->codec_type
+	for (i = 0; i < pFormatCtx->nb_streams; i++) {
+		bool is_video = false;
+#ifdef FFMPEG5
+		if (pFormatCtx->streams[i] && pFormatCtx->streams[i]->codecpar &&
+		    pFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO)
+			is_video = true;
 #else
-		pFormatCtx->streams[i]->codec &&
-		    (pFormatCtx->streams[i]->codec->codec_type
-#endif == AVMEDIA_TYPE_VIDEO))
-		{
+		if (pFormatCtx->streams[i] && pFormatCtx->streams[i]->codec &&
+		    pFormatCtx->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO)
+			is_video = true;
+#endif
+		if (is_video) {
 			videoStream = i;
 			break;
 		}
+	}
 
 	if (videoStream == -1) {
 		avformat_close_input(&pFormatCtx);
