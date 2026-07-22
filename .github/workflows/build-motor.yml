@@ -138,27 +138,46 @@ jobs:
           svn checkout --depth=empty $svnUrl "$libDir"
 
           cd "$libDir"
-          $retries = 3
-          do {
-            $retries--
-            try {
-              # Pass array as individual arguments — PowerShell auto-expands
-              svn update --set-depth=infinity $dirs 2>&1
-              $ok = $LASTEXITCODE -eq 0
-            } catch {
-              $ok = $false
-              Write-Warning "SVN failed ($retries retries left): $_"
+          $failed = @()
+          foreach ($d in $dirs) {
+            $attempts = 3
+            $done = $false
+            do {
+              $attempts--
+              try {
+                & svn update --set-depth=infinity $d 2>&1
+                if ($LASTEXITCODE -eq 0) { $done = $true }
+                else { throw "svn exit code $LASTEXITCODE" }
+              } catch {
+                Write-Warning "SVN update $d failed ($attempts retries left): $_"
+                if ($attempts -gt 0) {
+                  Start-Sleep -Seconds 10
+                  & svn cleanup "$libDir" 2>&1 | Out-Null
+                }
+              }
+            } while (-not $done -and $attempts -ge 0)
+            if (-not $done) {
+              $failed += $d
             }
-            if (-not $ok -and $retries -gt 0) {
-              Start-Sleep -Seconds 30
-              # Clean .svn locks before retry
-              svn cleanup 2>&1 | Out-Null
-            }
-          } while (-not $ok -and $retries -ge 0)
-
-          if (-not $ok) {
-            Write-Error "Failed to download precompiled libs after 3 retries"
+            # 3-second delay between dirs to avoid rate limit (429)
+            Start-Sleep -Seconds 3
+          }
+          if ($failed.Count -gt 0) {
+            Write-Error "SVN failed for directories: $($failed -join ', ')"
             exit 1
+          }
+          # Verify critical files exist
+          $testFiles = @(
+            "$libDir\boost\include\boost\version.hpp",
+            "$libDir\ffmpeg\include\libavformat\avformat.h",
+            "$libDir\openjpeg\include\openjpeg-2.4\openjpeg.h",
+            "$libDir\python\311\include\Python.h"
+          )
+          foreach ($f in $testFiles) {
+            if (-not (Test-Path $f)) {
+              Write-Error "Missing critical file: $f — SVN checkout appears incomplete"
+              exit 1
+            }
           }
 
       - name: Configure
