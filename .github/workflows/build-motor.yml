@@ -102,7 +102,7 @@ jobs:
           exit $exitcode
 
       - name: Extract build errors
-        if: failure() || steps.build.outcome == 'failure'
+        if: failure()
         shell: bash
         run: |
           echo "=== GNUCHAN BUILD ERROR REPORT ===" > "$GITHUB_WORKSPACE/gnuchan_build_errors.txt"
@@ -163,79 +163,38 @@ jobs:
         run: |
           $libDir = "$env:GITHUB_WORKSPACE\lib\win64_vc15"
           $svnUrl = "https://svn.blender.org/svnroot/bf-blender/trunk/lib/win64_vc15"
-
           if (Test-Path "$libDir") { Remove-Item -Recurse -Force "$libDir" -ErrorAction SilentlyContinue }
           New-Item -ItemType Directory -Force -Path "$libDir" | Out-Null
-
-          $svnCfg = @(
-            '--non-interactive',
-            '--config-option', 'servers:global:http-timeout=1800',
-            '--config-option', 'servers:global:http-compression=no',
-            '--config-option', 'servers:global:http-bulk-updates=yes'
-          )
-
+          $svnCfg = @('--non-interactive','--config-option','servers:global:http-timeout=1800','--config-option','servers:global:http-compression=no','--config-option','servers:global:http-bulk-updates=yes')
           $allDirs = @("Fribidi","MaterialX","OpenImageIO","alembic","blosc","boost","brotli","dpcpp","embree","epoxy","ffmpeg","fftw3","freetype","gmp","harfbuzz","haru","iconv","imath","jpeg","level-zero","llvm","openal","opencollada","opencolorio","openexr","opengl","openimagedenoise","openjpeg","openpgl","opensubdiv","openvdb","osl","package","png","potrace","pthreads","pugixml","pystring","python","sdl","shaderc","sndfile","tbb","tiff","usd","vulkan","webp","wintab","xml2","xr_openxr_sdk","zlib","zstd")
           $largeDirs = @("boost","python")
-
           function Invoke-SvnCheckout {
-            param(
-              [string]$dir,
-              [int]$maxAttempts = 10,
-              [int]$baseDelay = 10
-            )
-            $target = "$libDir\$dir"
-            $attempts = $maxAttempts
-            $delay = $baseDelay
-            $url = "$svnUrl/$dir"
-
+            param([string]$dir,[int]$maxAttempts=10,[int]$baseDelay=10)
+            $target = "$libDir\$dir"; $attempts = $maxAttempts; $delay = $baseDelay; $url = "$svnUrl/$dir"
             do {
               if (Test-Path $target) { Remove-Item -Recurse -Force $target -ErrorAction SilentlyContinue }
               Write-Host "--- SVN checkout $dir (attempt $($maxAttempts - $attempts + 1)/$maxAttempts) ---"
               $result = & svn checkout @svnCfg --depth=infinity $url $target 2>&1
-              $exitCode = $LASTEXITCODE
-              $attempts--
+              $exitCode = $LASTEXITCODE; $attempts--
               if ($exitCode -eq 0) {
-                if (Test-Path $target) {
-                  $itemCount = (Get-ChildItem -Path $target -Recurse -File -ErrorAction SilentlyContinue | Measure-Object).Count
-                  Write-Host "SVN checkout $dir succeeded -- $itemCount files"
-                  return $true
-                }
-                Write-Warning "SVN checkout $dir reported success but directory is empty"
-                $exitCode = 1
+                if (Test-Path $target) { $itemCount = (Get-ChildItem -Path $target -Recurse -File -ErrorAction SilentlyContinue | Measure-Object).Count; Write-Host "SVN checkout $dir succeeded -- $itemCount files"; return $true }
+                Write-Warning "SVN checkout $dir reported success but directory is empty"; $exitCode = 1
               }
-              $errorMsg = $result -join ' '
               Write-Warning "SVN checkout $dir failed: exit code $exitCode"
-              if ($attempts -ge 0) {
-                $jitter = Get-Random -Minimum 0 -Maximum 30
-                $sleepTime = [Math]::Min($delay + $jitter, 300)
-                Write-Host "Waiting $sleepTime seconds before retry..."
-                Start-Sleep -Seconds $sleepTime
-                $delay = [Math]::Min($delay * 2, 300)
-              }
+              if ($attempts -ge 0) { $jitter = Get-Random -Minimum 0 -Maximum 30; $sleepTime = [Math]::Min($delay + $jitter, 300); Write-Host "Waiting $sleepTime seconds before retry..."; Start-Sleep -Seconds $sleepTime; $delay = [Math]::Min($delay * 2, 300) }
             } while ($attempts -ge 0)
             return $false
           }
-
           $failed = @()
           foreach ($d in $allDirs) {
-            $isLarge = $d -in $largeDirs
-            $maxRetries = if ($isLarge) { 30 } else { 10 }
-            $baseDelay = if ($isLarge) { 60 } else { 10 }
+            $isLarge = $d -in $largeDirs; $maxRetries = if ($isLarge) { 30 } else { 10 }; $baseDelay = if ($isLarge) { 60 } else { 10 }
             Write-Host "===== Checking out $d ($(if ($isLarge) {'large'} else {'small'}) directory) ====="
-            if (-not (Invoke-SvnCheckout $d $maxRetries $baseDelay)) {
-              $failed += $d
-              Write-Error "SVN checkout failed for: $d"
-            }
+            if (-not (Invoke-SvnCheckout $d $maxRetries $baseDelay)) { $failed += $d; Write-Error "SVN checkout failed for: $d" }
             Start-Sleep -Seconds $(if ($isLarge) {10} else {3})
           }
-          if ($failed.Count -gt 0) {
-            Write-Error "SVN failed for directories: $($failed -join ', ')"
-            exit 1
-          }
-
+          if ($failed.Count -gt 0) { Write-Error "SVN failed for directories: $($failed -join ', ')"; exit 1 }
           $openjpegTest = Get-ChildItem -Path "$libDir\openjpeg\include" -Recurse -Filter "openjpeg.h" -ErrorAction SilentlyContinue | Select-Object -First 1
           if (-not $openjpegTest) { Write-Error "Missing openjpeg.h"; exit 1 }
-          Write-Host "Found openjpeg.h at $($openjpegTest.FullName)"
 
       - name: Configure
         shell: cmd
@@ -286,17 +245,13 @@ jobs:
         run: |
           $logPath = "$env:BUILD_DIR\build_log.txt"
           if (!(Test-Path $logPath)) { Write-Host "No build log found"; exit 0 }
-          $report = @"
-=== GNUCHAN BUILD ERROR REPORT ===
-OS: windows-2022
-Date: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss UTC')
-Workflow: $env:GITHUB_WORKFLOW
-Run ID: $env:GITHUB_RUN_ID
-
-=== BUILD ERRORS ===
-"@
-          $report | Out-File "$env:GITHUB_WORKSPACE\gnuchan_build_errors.txt" -Encoding utf8
-          Get-Content $logPath | Select-String -Pattern "error [A-Z]\d{4}|error C\d{4}|error LNK\d{4}|fatal error|Process completed" | ForEach-Object { $_ } | Out-File "$env:GITHUB_WORKSPACE\gnuchan_build_errors.txt" -Encoding utf8 -Append
+          "=== GNUCHAN BUILD ERROR REPORT ===" | Out-File "$env:GITHUB_WORKSPACE\gnuchan_build_errors.txt" -Encoding utf8
+          "OS: windows-2022" | Out-File "$env:GITHUB_WORKSPACE\gnuchan_build_errors.txt" -Encoding utf8 -Append
+          "Date: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss UTC')" | Out-File "$env:GITHUB_WORKSPACE\gnuchan_build_errors.txt" -Encoding utf8 -Append
+          "Workflow: $env:GITHUB_WORKFLOW" | Out-File "$env:GITHUB_WORKSPACE\gnuchan_build_errors.txt" -Encoding utf8 -Append
+          "Run ID: $env:GITHUB_RUN_ID" | Out-File "$env:GITHUB_WORKSPACE\gnuchan_build_errors.txt" -Encoding utf8 -Append
+          "`n=== BUILD ERRORS ===" | Out-File "$env:GITHUB_WORKSPACE\gnuchan_build_errors.txt" -Encoding utf8 -Append
+          Get-Content $logPath | Select-String -Pattern "error [A-Z]\d{4}|error C\d{4}|error LNK\d{4}|fatal error|Process completed" | ForEach-Object { $_.Line } | Out-File "$env:GITHUB_WORKSPACE\gnuchan_build_errors.txt" -Encoding utf8 -Append
           "`n--- END ---" | Out-File "$env:GITHUB_WORKSPACE\gnuchan_build_errors.txt" -Encoding utf8 -Append
 
       - name: Upload build logs artifact (Windows)
