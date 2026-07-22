@@ -93,7 +93,57 @@ jobs:
             -DWITH_MEM_JEMALLOC=ON
 
       - name: Build
-        run: cmake --build "$BUILD_DIR" -j $(nproc)
+        id: build
+        continue-on-error: true
+        run: cmake --build "$BUILD_DIR" -j $(nproc) 2>&1 | tee "$BUILD_DIR/build_log.txt"
+
+      - name: Extract errors and save report
+        if: always()
+        run: |
+          LOG="$BUILD_DIR/build_log.txt"
+          ERRORS="$GITHUB_WORKSPACE/gnuchan_build_errors.txt"
+          if [ -f "$LOG" ]; then
+            cp "$LOG" "$GITHUB_WORKSPACE/build_full_log.txt"
+            grep -in "error" "$LOG" > "$ERRORS" 2>/dev/null || true
+            if [ -s "$ERRORS" ]; then
+              COUNT=$(wc -l < "$ERRORS")
+              {
+                echo "========================================"
+                echo "  GNUCHAN EDITOR BUILD ERROR REPORT"
+                echo "========================================"
+                echo ""
+                echo "OS: ubuntu-22.04"
+                echo "Date: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+                echo "Workflow: $GITHUB_WORKFLOW"
+                echo "Run ID: $GITHUB_RUN_ID"
+                echo ""
+                echo "Total error lines: $COUNT"
+                echo ""
+                echo "========================================"
+                echo "  ERRORS"
+                echo "========================================"
+                cat "$ERRORS"
+              } > "${ERRORS}.tmp" && mv "${ERRORS}.tmp" "$ERRORS"
+              echo "::warning::Build errors detected - $COUNT lines saved to gnuchan_build_errors.txt"
+            fi
+          fi
+
+      - name: Fail if build failed
+        if: steps.build.outcome == 'failure'
+        run: |
+          echo "::error::Build failed. Check 'build-logs-linux' artifact for the error report."
+          exit 1
+
+      - name: Upload build logs (error report + full log)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs-linux
+          path: |
+            gnuchan_build_errors.txt
+            build_full_log.txt
+          retention-days: 30
+          if-no-files-found: ignore
 
       - uses: actions/upload-artifact@v4
         with:
@@ -287,10 +337,63 @@ jobs:
           BUILD_DIR: ${{ github.workspace }}\build
 
       - name: Build
+        id: build_windows
+        continue-on-error: true
         shell: cmd
-        run: cmake --build "%BUILD_DIR%" --config Release -j %NUMBER_OF_PROCESSORS%
+        run: cmake --build "%BUILD_DIR%" --config Release -j %NUMBER_OF_PROCESSORS% > "%BUILD_DIR%\build_log.txt" 2>&1
         env:
           BUILD_DIR: ${{ github.workspace }}\build
+
+      - name: Extract errors and save report
+        if: always()
+        shell: pwsh
+        run: |
+          $logPath = "$env:BUILD_DIR\build_log.txt"
+          if (!(Test-Path $logPath)) { Write-Host "No build log found"; exit 0 }
+
+          Copy-Item $logPath "$env:GITHUB_WORKSPACE\build_full_log.txt"
+
+          $errors = Get-Content $logPath | Select-String -Pattern "error [A-Z]\d{4}|error C\d{4}|error LNK\d{4}|fatal error|Process completed" | Select-Object -ExpandProperty Line
+          if ($errors) {
+            $count = ($errors | Measure-Object).Count
+            $report = @"
+  GNUCHAN EDITOR BUILD ERROR REPORT
+
+OS: windows-2022
+Date: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss UTC')
+Workflow: $env:GITHUB_WORKFLOW
+Run ID: $env:GITHUB_RUN_ID
+
+Total error lines: $count
+
+  ERRORS
+
+"@
+            $report | Out-File "$env:GITHUB_WORKSPACE\gnuchan_build_errors.txt" -Encoding utf8
+            $errors | Out-File "$env:GITHUB_WORKSPACE\gnuchan_build_errors.txt" -Encoding utf8 -Append
+            Write-Host "Saved $count error line(s) to gnuchan_build_errors.txt"
+            Write-Host "::warning::Build errors detected - $count lines. See 'build-logs-windows' artifact."
+          } else {
+            Write-Host "No build errors found in log"
+          }
+
+      - name: Fail if build failed
+        if: steps.build_windows.outcome == 'failure'
+        shell: pwsh
+        run: |
+          Write-Host "::error::Build failed. Check 'build-logs-windows' artifact for the error report."
+          exit 1
+
+      - name: Upload build logs (error report + full log)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs-windows
+          path: |
+            gnuchan_build_errors.txt
+            build_full_log.txt
+          retention-days: 30
+          if-no-files-found: ignore
 
       - uses: actions/upload-artifact@v4
         with:
