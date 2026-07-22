@@ -176,6 +176,8 @@ jobs:
         run: choco install svn -y --no-progress
 
       - name: Download precompiled libs (win64_vc15)
+        id: svn_checkout
+        continue-on-error: true
         shell: pwsh
         run: |
           # Enable long paths on Windows (avoid MAX_PATH issues with SVN deep trees)
