@@ -138,29 +138,41 @@ jobs:
           svn checkout --depth=empty $svnUrl "$libDir"
 
           cd "$libDir"
-          $failed = @()
-          foreach ($d in $dirs) {
-            $attempts = 3
-            $done = $false
+          # Separate large dirs (prone to 429) from small ones
+          $smallDirs = @("alembic","fftw3","freetype","imath","jack","jpeg","openal","opencollada","opencolorio","openexr","openimageio","openjpeg","opensubdiv","openvdb","osl","png","pthreads","sdl","tbb","tiff","webp","zlib")
+          $largeDirs = @("boost","python")
+
+          function Update-SvnDir($dir, $maxRetries, $delaySec) {
+            $attempts = $maxRetries
             do {
               $attempts--
               try {
-                & svn update --set-depth=infinity $d 2>&1
-                if ($LASTEXITCODE -eq 0) { $done = $true }
-                else { throw "svn exit code $LASTEXITCODE" }
+                & svn update --set-depth=infinity $dir 2>&1
+                if ($LASTEXITCODE -eq 0) { return $true }
+                throw "exit code $LASTEXITCODE"
               } catch {
-                Write-Warning "SVN update $d failed ($attempts retries left): $_"
+                Write-Warning "SVN update $dir failed ($attempts retries left): $_"
                 if ($attempts -gt 0) {
-                  Start-Sleep -Seconds 10
+                  Start-Sleep -Seconds $delaySec
                   & svn cleanup "$libDir" 2>&1 | Out-Null
                 }
               }
-            } while (-not $done -and $attempts -ge 0)
-            if (-not $done) {
-              $failed += $d
-            }
-            # 3-second delay between dirs to avoid rate limit (429)
+            } while ($attempts -ge 0)
+            return $false
+          }
+
+          # Small dirs: 3 retries, 3s delay between, 5s retry delay
+          $failed = @()
+          foreach ($d in $smallDirs) {
+            if (-not (Update-SvnDir $d 3 5)) { $failed += $d }
             Start-Sleep -Seconds 3
+          }
+          # Large dirs: 5 retries, 15s retry delay, 10s between
+          if ($failed.Count -eq 0) {
+            foreach ($d in $largeDirs) {
+              if (-not (Update-SvnDir $d 5 15)) { $failed += $d }
+              Start-Sleep -Seconds 10
+            }
           }
           if ($failed.Count -gt 0) {
             Write-Error "SVN failed for directories: $($failed -join ', ')"
