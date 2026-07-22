@@ -469,7 +469,11 @@ static int startffmpeg(struct anim *anim)
 {
 	int i, videoStream;
 
+#ifdef FFMPEG5
+	const AVCodec *pCodec;
+#else
 	AVCodec *pCodec;
+#endif
 	AVFormatContext *pFormatCtx = NULL;
 	AVCodecContext *pCodecCtx;
 	AVRational frame_rate;
@@ -504,7 +508,11 @@ static int startffmpeg(struct anim *anim)
 	videoStream = -1;
 
 	for (i = 0; i < pFormatCtx->nb_streams; i++)
-		if (pFormatCtx->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO) {
+		if (#ifdef FFMPEG5
+		(pFormatCtx->streams[i]->codecpar->codec_type)
+#else
+	pFormatCtx->streams[i]->codec->codec_type
+#endif == AVMEDIA_TYPE_VIDEO) {
 			if (streamcount > 0) {
 				streamcount--;
 				continue;
@@ -518,7 +526,14 @@ static int startffmpeg(struct anim *anim)
 		return -1;
 	}
 
+	#ifdef FFMPEG5
+	{
+		pCodecCtx = avcodec_alloc_context3(NULL);
+		avcodec_parameters_to_context(pCodecCtx, pFormatCtx->streams[videoStream]->codecpar);
+	}
+#else
 	pCodecCtx = pFormatCtx->streams[videoStream]->codec;
+#endif
 
 	/* Find the decoder for the video stream */
 	pCodec = avcodec_find_decoder(pCodecCtx->codec_id);
@@ -569,7 +584,7 @@ static int startffmpeg(struct anim *anim)
 
 	anim->pFormatCtx = pFormatCtx;
 	anim->pCodecCtx = pCodecCtx;
-	anim->pCodec = pCodec;
+	anim->pCodec = (AVCodec *)pCodec;
 	anim->videoStream = videoStream;
 
 	anim->interlacing = 0;
@@ -715,9 +730,9 @@ static void ffmpeg_postprocess(struct anim *anim)
 
 	if (anim->ib_flags & IB_animdeinterlace) {
 		if (avpicture_deinterlace(
-		        (AVPicture *)
+		        (AVFrame *)
 		        anim->pFrameDeinterlaced,
-		        (const AVPicture *)
+		        (const AVFrame *)
 		        anim->pFrame,
 		        anim->pCodecCtx->pix_fmt,
 		        anim->pCodecCtx->width,

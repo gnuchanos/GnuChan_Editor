@@ -27,6 +27,7 @@ extern "C" {
 
 AUD_NAMESPACE_BEGIN
 
+/* FFMPEG_OLD_CODE is defined for FFmpeg versions < 4 (libavcodec major < 58). */
 #if LIBAVCODEC_VERSION_MAJOR < 58
 #  define FFMPEG_OLD_CODE
 #endif
@@ -155,7 +156,7 @@ void FFMPEGReader::init()
 
 	// get a decoder and open it
 #ifndef FFMPEG_OLD_CODE
-	AVCodec* aCodec = avcodec_find_decoder(m_formatCtx->streams[m_stream]->codecpar->codec_id);
+	const AVCodec* aCodec = avcodec_find_decoder(m_formatCtx->streams[m_stream]->codecpar->codec_id);
 	if(!aCodec)
 		AUD_THROW(FileException, "File couldn't be read, no decoder found with ffmpeg.");
 #endif

@@ -44,23 +44,14 @@ extern "C" {
 #include "BLI_blenlib.h"
 }
 
-#if LIBAVFORMAT_VERSION_INT < (49 << 16)
-#  define FFMPEG_OLD_FRAME_RATE 1
+#ifdef FFMPEG5
+/* FFmpeg 5+ wraps: av_find_input_format returns const AVInputFormat* */
+static inline const AVInputFormat *ffmpeg_av_find_input_format_cpp(const char *name) { return av_find_input_format_cpp(name); }
+/* av_register_all is a no-op */
 #else
-#  define FFMPEG_CODEC_IS_POINTER 1
+static inline AVInputFormat *ffmpeg_av_find_input_format_cpp(const char *name) { return av_find_input_format_cpp(name); }
 #endif
-
-#ifdef FFMPEG_CODEC_IS_POINTER
-static inline AVCodecContext *get_codec_from_stream(AVStream* stream)
-{
-	return stream->codec;
-}
-#else
-static inline AVCodecContext *get_codec_from_stream(AVStream* stream)
-{
-	return &stream->codec;
-}
-#endif
+static inline AVInputFormat *av_find_input_format_cpp(const char *name) { return (AVInputFormat *)ffmpeg_av_find_input_format_cpp(name); }
 
 #include "VideoBase.h"
 
@@ -106,7 +97,7 @@ public:
 
 protected:
 	// format and codec information
-	AVCodec	*m_codec;
+	const AVCodec	*m_codec;
 	AVFormatContext *m_formatCtx;
 	AVCodecContext *m_codecCtx;
 	// raw frame extracted from video file
@@ -173,7 +164,7 @@ protected:
 	double actFrameRate (void) { return m_frameRate * m_baseFrameRate; }
 
 	/// common function to video file and capture
-	int openStream(const char *filename, AVInputFormat *inputFormat, AVDictionary **formatParams);
+	int openStream(const char *filename, const AVInputFormat *inputFormat, AVDictionary **formatParams);
 
 	/// check if a frame is available and load it in pFrame, return true if a frame could be retrieved
 	AVFrame* grabFrame(long frame);

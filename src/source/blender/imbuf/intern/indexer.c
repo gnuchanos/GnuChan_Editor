@@ -493,7 +493,10 @@ static struct proxy_output_ctx *alloc_proxy_output_ffmpeg(
 	rv->st = avformat_new_stream(rv->of, NULL);
 	rv->st->id = 0;
 
-	rv->c = rv->st->codec;
+	/* Proxy code disabled on FFmpeg 5+ due to API changes */
+#ifndef FFMPEG5
+	rv->c = st->codec;
+	if (!rv->c) { av_free(rv->of); return NULL; }
 	rv->c->codec_type = AVMEDIA_TYPE_VIDEO;
 	rv->c->codec_id = AV_CODEC_ID_MJPEG;
 	rv->c->width = width;
@@ -543,10 +546,11 @@ static struct proxy_output_ctx *alloc_proxy_output_ffmpeg(
 
 	avcodec_open2(rv->c, rv->codec, NULL);
 
+	#ifndef FFMPEG5
 	rv->orig_height = av_get_cropped_height_from_codec(st->codec);
 
-	if (st->codec->width != width || st->codec->height != height ||
-	    st->codec->pix_fmt != rv->c->pix_fmt)
+	if (st->codec->width != width || STREAM_CODEC(st)->height != height ||
+	    STREAM_CODEC(st)->pix_fmt != rv->c->pix_fmt)
 	{
 		rv->frame = av_frame_alloc();
 		avpicture_fill((AVPicture *) rv->frame,
@@ -574,6 +578,12 @@ static struct proxy_output_ctx *alloc_proxy_output_ffmpeg(
 	}
 
 	return rv;
+#else
+	/* FFmpeg5: proxy not supported - free resources */
+	av_free(rv->of);
+	MEM_freeN(rv);
+	return NULL;
+#endif
 }
 
 static int add_to_proxy_output_ffmpeg(
@@ -750,7 +760,11 @@ static IndexBuildContext *index_ffmpeg_create_context(struct anim *anim, IMB_Tim
 	/* Find the video stream */
 	context->videoStream = -1;
 	for (i = 0; i < context->iFormatCtx->nb_streams; i++)
-		if (context->iFormatCtx->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO) {
+		if (#ifdef FFMPEG5
+		context->iFormatCtx->streams[i]->codecpar->codec_type
+#else
+		context->iFormatCtx->streams[i]->codec->codec_type
+#endif == AVMEDIA_TYPE_VIDEO) {
 			if (streamcount > 0) {
 				streamcount--;
 				continue;
@@ -766,7 +780,14 @@ static IndexBuildContext *index_ffmpeg_create_context(struct anim *anim, IMB_Tim
 	}
 
 	context->iStream = context->iFormatCtx->streams[context->videoStream];
+	#ifdef FFMPEG5
+	{
+		context->iCodecCtx = avcodec_alloc_context3(NULL);
+		avcodec_parameters_to_context(context->iCodecCtx, context->iStream->codecpar);
+	}
+#else
 	context->iCodecCtx = context->iStream->codec;
+#endif
 
 	context->iCodec = avcodec_find_decoder(context->iCodecCtx->codec_id);
 

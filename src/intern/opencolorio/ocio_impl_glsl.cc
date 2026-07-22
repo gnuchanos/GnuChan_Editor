@@ -291,10 +291,10 @@ bool OCIOImpl::setupGLSLDraw(OCIO_GLSLDrawState **state_r, OCIO_ConstProcessorRc
 	}
 
 	/* Step 1: Create a GPU Shader Description */
-	GpuShaderDesc shaderDesc;
-	shaderDesc.setLanguage(GPU_LANGUAGE_GLSL_1_3);
-	shaderDesc.setFunctionName("OCIODisplay");
-	shaderDesc.setLut3DEdgeLen(LUT3D_EDGE_SIZE);
+	GpuShaderDescRcPtr shaderDesc = GpuShaderDesc::Create();
+	shaderDesc->setLanguage(GPU_LANGUAGE_GLSL_1_3);
+	shaderDesc->setFunctionName("OCIODisplay");
+	shaderDesc->setLut3DEdgeLen(LUT3D_EDGE_SIZE);
 
 	if (use_curve_mapping) {
 		if (state->curve_mapping_cache_id != curve_mapping_settings->cache_id) {
@@ -306,10 +306,10 @@ bool OCIOImpl::setupGLSLDraw(OCIO_GLSLDrawState **state_r, OCIO_ConstProcessorRc
 	}
 
 	/* Step 2: Compute the 3D LUT */
-	std::string lut3dCacheID = ocio_processor->getGpuLut3DCacheID(shaderDesc);
+	std::string lut3dCacheID = ocio_processor->getGpuLut3DCacheID(*shaderDesc);
 	if (lut3dCacheID != state->lut3dcacheid) {
 		state->lut3dcacheid = lut3dCacheID;
-		ocio_processor->getGpuLut3D(state->lut3d, shaderDesc);
+		ocio_processor->getGpuLut3D(state->lut3d, *shaderDesc);
 
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_3D, state->lut3d_texture);
@@ -319,7 +319,7 @@ bool OCIOImpl::setupGLSLDraw(OCIO_GLSLDrawState **state_r, OCIO_ConstProcessorRc
 	}
 
 	/* Step 3: Compute the Shader */
-	std::string shaderCacheID = ocio_processor->getGpuShaderTextCacheID(shaderDesc);
+	std::string shaderCacheID = ocio_processor->getGpuShaderTextCacheID(*shaderDesc);
 	if (state->program == 0 ||
 	    shaderCacheID != state->shadercacheid ||
 	    use_predivide != state->predivide_used ||
@@ -358,7 +358,7 @@ bool OCIOImpl::setupGLSLDraw(OCIO_GLSLDrawState **state_r, OCIO_ConstProcessorRc
 			os << "#define USE_CURVE_MAPPING\n";
 		}
 
-		os << ocio_processor->getGpuShaderText(shaderDesc) << "\n";
+		os << ocio_processor->getGpuShaderText(*shaderDesc) << "\n";
 		os << datatoc_gpu_shader_display_transform_glsl;
 
 		state->ocio_shader = compileShaderText(GL_FRAGMENT_SHADER, os.str().c_str());

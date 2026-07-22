@@ -331,7 +331,9 @@ const char *OCIOImpl::configGetDisplayColorSpaceName(OCIO_ConstConfigRcPtr *conf
 void OCIOImpl::configGetDefaultLumaCoefs(OCIO_ConstConfigRcPtr *config, float *rgb)
 {
 	try {
-		(*(ConstConfigRcPtr *) config)->getDefaultLumaCoefs(rgb);
+		double luma[3];
+		(*(ConstConfigRcPtr *) config)->getDefaultLumaCoefs(luma);
+		rgb[0] = (float)luma[0]; rgb[1] = (float)luma[1]; rgb[2] = (float)luma[2];
 	}
 	catch (Exception &exception) {
 		OCIO_reportException(exception);
@@ -637,7 +639,8 @@ OCIO_ExponentTransformRcPtr *OCIOImpl::createExponentTransform(void)
 
 void OCIOImpl::exponentTransformSetValue(OCIO_ExponentTransformRcPtr *et, const float *exponent)
 {
-	(*(ExponentTransformRcPtr *) et)->setValue(exponent);
+	double tmp[4] = { exponent[0], exponent[1], exponent[2], exponent[3] };
+	(*(ExponentTransformRcPtr *) et)->setValue(tmp);
 }
 
 void OCIOImpl::exponentTransformRelease(OCIO_ExponentTransformRcPtr *et)
@@ -666,7 +669,12 @@ void OCIOImpl::matrixTransformRelease(OCIO_MatrixTransformRcPtr *mt)
 
 void OCIOImpl::matrixTransformScale(float *m44, float *offset4, const float *scale4f)
 {
-	MatrixTransform::Scale(m44, offset4, scale4f);
+	double m44d[16], offd[4], scaled[4];
+	for (int i = 0; i < 16; i++) m44d[i] = m44[i];
+	for (int i = 0; i < 4; i++) { offd[i] = offset4[i]; scaled[i] = scale4f[i]; }
+	MatrixTransform::Scale(m44d, offd, scaled);
+	for (int i = 0; i < 16; i++) m44[i] = (float)m44d[i];
+	for (int i = 0; i < 4; i++) offset4[i] = (float)offd[i];
 }
 
 const char *OCIOImpl::getVersionString(void)

@@ -33,7 +33,7 @@
 #include <opensubdiv/osd/cpuGLVertexBuffer.h>
 #include <opensubdiv/osd/cpuEvaluator.h>
 
-#ifdef OPENSUBDIV_HAS_OPENMP
+#if defined(OPENSUBDIV_HAS_OPENMP) && OPENSUBDIV_HAS_OPENMP
 #  include <opensubdiv/osd/ompEvaluator.h>
 #endif  /* OPENSUBDIV_HAS_OPENMP */
 

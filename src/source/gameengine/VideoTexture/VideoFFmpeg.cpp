@@ -166,11 +166,11 @@ void VideoFFmpeg::initParams(short width, short height, float rate, bool image)
 }
 
 
-int VideoFFmpeg::openStream(const char *filename, AVInputFormat *inputFormat, AVDictionary **formatParams)
+int VideoFFmpeg::openStream(const char *filename, const AVInputFormat *inputFormat, AVDictionary **formatParams)
 {
 	AVFormatContext *formatCtx = nullptr;
 	int i, videoStream;
-	AVCodec         *codec;
+	const AVCodec    *codec;
 	AVCodecContext  *codecCtx;
 
     if (avformat_open_input(&formatCtx, filename, inputFormat, formatParams) != 0) {
@@ -192,8 +192,8 @@ int VideoFFmpeg::openStream(const char *filename, AVInputFormat *inputFormat, AV
 	for (i = 0; i < formatCtx->nb_streams; i++)
 	{
 		if (formatCtx->streams[i] &&
-		    get_codec_from_stream(formatCtx->streams[i]) &&
-		    (get_codec_from_stream(formatCtx->streams[i])->codec_type == AVMEDIA_TYPE_VIDEO)) {
+		    formatCtx->streams[i]->codecpar &&
+		    (formatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO)) {
 			videoStream = i;
 			break;
 		}
@@ -204,16 +204,28 @@ int VideoFFmpeg::openStream(const char *filename, AVInputFormat *inputFormat, AV
 		return -1;
 	}
 
-	codecCtx = get_codec_from_stream(formatCtx->streams[videoStream]);
+	/* Allocate a codec context from codecpar (FFmpeg 5+ compatible) */
+	codecCtx = avcodec_alloc_context3(nullptr);
+	if (!codecCtx) {
+		avformat_close_input(&formatCtx);
+		return -1;
+	}
+	if (avcodec_parameters_to_context(codecCtx, formatCtx->streams[videoStream]->codecpar) < 0) {
+		avcodec_free_context(&codecCtx);
+		avformat_close_input(&formatCtx);
+		return -1;
+	}
 
 	/* Find the decoder for the video stream */
 	codec = avcodec_find_decoder(codecCtx->codec_id);
 	if (codec == nullptr) {
+		avcodec_free_context(&codecCtx);
 		avformat_close_input(&formatCtx);
 		return -1;
 	}
 	codecCtx->workaround_bugs = 1;
 	if (avcodec_open2(codecCtx, codec, nullptr) < 0) {
+		avcodec_free_context(&codecCtx);
 		avformat_close_input(&formatCtx);
 		return -1;
 	}
@@ -580,7 +592,7 @@ void VideoFFmpeg::openFile(char *filename)
 void VideoFFmpeg::openCam(char *file, short camIdx)
 {
 	// open camera source
-	AVInputFormat       *inputFormat;
+	const AVInputFormat  *inputFormat;
 	AVDictionary        *formatParams = nullptr;
 	char filename[28], rateStr[20];
 
@@ -1351,5 +1363,3 @@ PyTypeObject ImageFFmpegType =
 };
 
 #endif  //WITH_FFMPEG
-
-

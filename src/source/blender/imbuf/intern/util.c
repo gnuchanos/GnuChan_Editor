@@ -247,7 +247,7 @@ static void ffmpeg_log_callback(void *ptr, int level, const char *format, va_lis
 
 void IMB_ffmpeg_init(void)
 {
-	av_register_all();
+	av_register_all(); /* no-op on FFmpeg 5+ */
 	avdevice_register_all();
 
 	ffmpeg_last_error[0] = '\0';
@@ -297,8 +297,13 @@ static int isffmpeg(const char *filename)
 	videoStream = -1;
 	for (i = 0; i < pFormatCtx->nb_streams; i++)
 		if (pFormatCtx->streams[i] &&
-		    pFormatCtx->streams[i]->codec &&
-		    (pFormatCtx->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO))
+		    #ifdef FFMPEG5
+		pFormatCtx->streams[i]->codecpar &&
+		    (pFormatCtx->streams[i]->codecpar->codec_type
+#else
+		pFormatCtx->streams[i]->codec &&
+		    (pFormatCtx->streams[i]->codec->codec_type
+#endif == AVMEDIA_TYPE_VIDEO))
 		{
 			videoStream = i;
 			break;
@@ -309,7 +314,14 @@ static int isffmpeg(const char *filename)
 		return 0;
 	}
 
+	#ifdef FFMPEG5
+	{
+		pCodecCtx = avcodec_alloc_context3(NULL);
+		avcodec_parameters_to_context(pCodecCtx, pFormatCtx->streams[videoStream]->codecpar);
+	}
+#else
 	pCodecCtx = pFormatCtx->streams[videoStream]->codec;
+#endif
 
 	/* Find the decoder for the video stream */
 	pCodec = avcodec_find_decoder(pCodecCtx->codec_id);

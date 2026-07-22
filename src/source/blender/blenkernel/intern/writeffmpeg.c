@@ -79,6 +79,11 @@ typedef struct FFMpegContext {
 	AVFrame *current_frame;
 	struct SwsContext *img_convert_ctx;
 
+#ifdef FFMPEG5
+	AVCodecContext *video_enc_ctx;
+	AVCodecContext *audio_enc_ctx;
+#endif
+
 	uint8_t *audio_input_buffer;
 	uint8_t *audio_deinterleave_buffer;
 	int audio_input_samples;
@@ -100,6 +105,15 @@ typedef struct FFMpegContext {
 #define FFMPEG_AUTOSPLIT_SIZE 2000000000
 
 #define PRINT if (G.debug & G_DEBUG_FFMPEG) printf
+
+/* STREAM_CODEC macro: provides read-only access to codec parameters from a stream.
+ * For FFmpeg5+, stream->codec is removed; use codecpar for parameters.
+ * For encoding contexts, use context->video_enc_ctx / audio_enc_ctx instead. */
+#ifdef FFMPEG5
+#  define STREAM_CODEC(stream) ((stream)->codecpar)
+#else
+#  define STREAM_CODEC(stream) ((stream)->codec)
+#endif
 
 static void ffmpeg_dict_set_int(AVDictionary **dict, const char *key, int value);
 static void ffmpeg_dict_set_float(AVDictionary **dict, const char *key, float value);
@@ -130,7 +144,11 @@ static int write_audio_frame(FFMpegContext *context)
 	AVFrame *frame = NULL;
 	int got_output = 0;
 
-	c = context->audio_stream->codec;
+#ifdef FFMPEG5
+	c = context->audio_enc_ctx;
+#else
+	c = STREAM_CODEC(context->audio_stream);
+#endif
 
 	av_init_packet(&pkt);
 	pkt.size = 0;
@@ -312,7 +330,11 @@ static int write_video_frame(FFMpegContext *context, RenderData *rd, int cfra, A
 {
 	int got_output;
 	int ret, success = 1;
-	AVCodecContext *c = context->video_stream->codec;
+#ifdef FFMPEG5
+	AVCodecContext *c = context->video_enc_ctx;
+#else
+	AVCodecContext *c = STREAM_CODEC(context->video_stream);
+#endif
 	AVPacket packet = { 0 };
 
 	av_init_packet(&packet);
@@ -360,7 +382,11 @@ static AVFrame *generate_video_frame(FFMpegContext *context, uint8_t *pixels, Re
 {
 	uint8_t *rendered_frame;
 
-	AVCodecContext *c = context->video_stream->codec;
+#ifdef FFMPEG5
+	AVCodecContext *c = context->video_enc_ctx;
+#else
+	AVCodecContext *c = STREAM_CODEC(context->video_stream);
+#endif
 	int width = c->width;
 	int height = c->height;
 	AVFrame *rgb_frame;
@@ -538,7 +564,13 @@ static AVStream *alloc_video_stream(FFMpegContext *context, RenderData *rd, int 
 
 	/* Set up the codec context */
 
-	c = st->codec;
+#ifdef FFMPEG5
+	c = avcodec_alloc_context3(NULL);
+	if (!c) return NULL;
+	context->video_enc_ctx = c;
+#else
+	c = STREAM_CODEC(st);
+#endif
 	c->codec_id = codec_id;
 	c->codec_type = AVMEDIA_TYPE_VIDEO;
 
@@ -720,7 +752,13 @@ static AVStream *alloc_audio_stream(FFMpegContext *context, RenderData *rd, int 
 	if (!st) return NULL;
 	st->id = 1;
 
+#ifdef FFMPEG5
+	c = avcodec_alloc_context3(NULL);
+	if (!c) return NULL;
+	context->audio_enc_ctx = c;
+#else
 	c = st->codec;
+#endif
 	c->codec_id = codec_id;
 	c->codec_type = AVMEDIA_TYPE_AUDIO;
 
@@ -768,12 +806,12 @@ static AVStream *alloc_audio_stream(FFMpegContext *context, RenderData *rd, int 
 		 */
 		const enum AVSampleFormat *p = codec->sample_fmts;
 		for (; *p != -1; p++) {
-			if (*p == st->codec->sample_fmt)
+			if (*p == c->sample_fmt)
 				break;
 		}
 		if (*p == -1) {
 			/* sample format incompatible with codec. Defaulting to a format known to work */
-			st->codec->sample_fmt = codec->sample_fmts[0];
+			c->sample_fmt = codec->sample_fmts[0];
 		}
 	}
 
@@ -782,14 +820,14 @@ static AVStream *alloc_audio_stream(FFMpegContext *context, RenderData *rd, int 
 		int best = 0;
 		int best_dist = INT_MAX;
 		for (; *p; p++) {
-			int dist = abs(st->codec->sample_rate - *p);
+			int dist = abs(c->sample_rate - *p);
 			if (dist < best_dist) {
 				best_dist = dist;
 				best = *p;
 			}
 		}
 		/* best is the closest supported sample rate (same as selected if best_dist == 0) */
-		st->codec->sample_rate = best;
+		c->sample_rate = best;
 	}
 
 	if (of->oformat->flags & AVFMT_GLOBALHEADER) {
@@ -808,8 +846,8 @@ static AVStream *alloc_audio_stream(FFMpegContext *context, RenderData *rd, int 
 
 	/* need to prevent floating point exception when using vorbis audio codec,
 	 * initialize this value in the same way as it's done in FFmpeg itself (sergey) */
-	st->codec->time_base.num = 1;
-	st->codec->time_base.den = st->codec->sample_rate;
+	c->time_base.num = 1;
+	c->time_base.den = c->sample_rate;
 
 #ifndef FFMPEG_HAVE_ENCODE_AUDIO2
 	context->audio_outbuf_size = FF_MIN_BUFFER_SIZE;
@@ -943,7 +981,11 @@ static int start_ffmpeg_impl(FFMpegContext *context, struct RenderData *rd, int 
 
 	fmt->audio_codec = context->ffmpeg_audio_codec;
 
+#ifndef FFMPEG5
 	BLI_strncpy(of->filename, name, sizeof(of->filename));
+#else
+	av_dict_set(&opts, "output_filename", name, 0);
+#endif
 	/* set the codec to the user's selection */
 	switch (context->ffmpeg_type) {
 		case FFMPEG_AVI:
@@ -1050,13 +1092,27 @@ fail:
 		avio_close(of->pb);
 	}
 
-	if (context->video_stream && context->video_stream->codec) {
+	if (context->video_stream) {
+#ifdef FFMPEG5
+		if (context->video_enc_ctx) {
+			avcodec_close(context->video_enc_ctx);
+			context->video_enc_ctx = NULL;
+		}
+#else
 		avcodec_close(context->video_stream->codec);
+#endif
 		context->video_stream = NULL;
 	}
 
-	if (context->audio_stream && context->audio_stream->codec) {
+	if (context->audio_stream) {
+#ifdef FFMPEG5
+		if (context->audio_enc_ctx) {
+			avcodec_close(context->audio_enc_ctx);
+			context->audio_enc_ctx = NULL;
+		}
+#else
 		avcodec_close(context->audio_stream->codec);
+#endif
 		context->audio_stream = NULL;
 	}
 
@@ -1086,7 +1142,11 @@ static void flush_ffmpeg(FFMpegContext *context)
 {
 	int ret = 0;
 
+#ifdef FFMPEG5
+	AVCodecContext *c = context->video_enc_ctx;
+#else
 	AVCodecContext *c = context->video_stream->codec;
+#endif
 	/* get the delayed frames */
 	while (1) {
 		int got_output;
@@ -1123,7 +1183,7 @@ static void flush_ffmpeg(FFMpegContext *context)
 			break;
 		}
 	}
-	avcodec_flush_buffers(context->video_stream->codec);
+	avcodec_flush_buffers(c);
 }
 
 /* **********************************************************************
@@ -1212,7 +1272,11 @@ int BKE_ffmpeg_start(void *context_v, struct Scene *scene, RenderData *rd, int r
 	success = start_ffmpeg_impl(context, rd, rectx, recty, suffix, reports);
 #ifdef WITH_AUDASPACE
 	if (context->audio_stream) {
+#ifdef FFMPEG5
+		AVCodecContext *c = context->audio_enc_ctx;
+#else
 		AVCodecContext *c = context->audio_stream->codec;
+#endif
 		AUD_DeviceSpecs specs;
 		specs.channels = c->channels;
 
@@ -1314,7 +1378,13 @@ static void end_ffmpeg_impl(FFMpegContext *context, int is_autosplit)
 	}
 #endif
 
-	if (context->video_stream && context->video_stream->codec) {
+	if (context->video_stream && 
+#ifdef FFMPEG5
+	    context->video_enc_ctx
+#else
+	    context->video_stream->codec
+#endif
+	    ) {
 		PRINT("Flushing delayed frames...\n");
 		flush_ffmpeg(context);
 	}
@@ -1325,16 +1395,33 @@ static void end_ffmpeg_impl(FFMpegContext *context, int is_autosplit)
 
 	/* Close the video codec */
 
+#ifdef FFMPEG5
+	if (context->video_enc_ctx != NULL) {
+		avcodec_close(context->video_enc_ctx);
+		context->video_enc_ctx = NULL;
+		PRINT("zero video stream %p\n", context->video_stream);
+		context->video_stream = NULL;
+	}
+#else
 	if (context->video_stream != NULL && context->video_stream->codec != NULL) {
 		avcodec_close(context->video_stream->codec);
 		PRINT("zero video stream %p\n", context->video_stream);
 		context->video_stream = NULL;
 	}
+#endif
 
+#ifdef FFMPEG5
+	if (context->audio_enc_ctx != NULL) {
+		avcodec_close(context->audio_enc_ctx);
+		context->audio_enc_ctx = NULL;
+		context->audio_stream = NULL;
+	}
+#else
 	if (context->audio_stream != NULL && context->audio_stream->codec != NULL) {
 		avcodec_close(context->audio_stream->codec);
 		context->audio_stream = NULL;
 	}
+#endif
 
 	/* free the temp buffer */
 	if (context->current_frame != NULL) {
@@ -1397,7 +1484,7 @@ void BKE_ffmpeg_property_del(RenderData *rd, void *type, void *prop_)
 
 static IDProperty *BKE_ffmpeg_property_add(RenderData *rd, const char *type, const AVOption *o, const AVOption *parent)
 {
-	AVCodecContext c;
+	AVCodecContext *c;
 	IDProperty *group;
 	IDProperty *prop;
 	IDPropertyTemplate val;
@@ -1406,7 +1493,7 @@ static IDProperty *BKE_ffmpeg_property_add(RenderData *rd, const char *type, con
 
 	val.i = 0;
 
-	avcodec_get_context_defaults3(&c, NULL);
+	c = avcodec_alloc_context3(NULL);
 
 	if (!rd->ffcodecdata.properties) {
 		rd->ffcodecdata.properties = IDP_New(IDP_GROUP, &val, "ffmpeg");
@@ -1430,6 +1517,7 @@ static IDProperty *BKE_ffmpeg_property_add(RenderData *rd, const char *type, con
 
 	prop = IDP_GetPropertyFromGroup(group, name);
 	if (prop) {
+		avcodec_free_context(&c);
 		return prop;
 	}
 
@@ -1455,10 +1543,12 @@ static IDProperty *BKE_ffmpeg_property_add(RenderData *rd, const char *type, con
 			idp_type = IDP_INT;
 			break;
 		default:
+			avcodec_free_context(&c);
 			return NULL;
 	}
 	prop = IDP_New(idp_type, &val, name);
 	IDP_AddToGroup(group, prop);
+	avcodec_free_context(&c);
 	return prop;
 }
 
@@ -1466,7 +1556,7 @@ static IDProperty *BKE_ffmpeg_property_add(RenderData *rd, const char *type, con
 
 int BKE_ffmpeg_property_add_string(RenderData *rd, const char *type, const char *str)
 {
-	AVCodecContext c;
+	AVCodecContext *c;
 	const AVOption *o = NULL;
 	const AVOption *p = NULL;
 	char name_[128];
@@ -1474,7 +1564,7 @@ int BKE_ffmpeg_property_add_string(RenderData *rd, const char *type, const char 
 	char *param;
 	IDProperty *prop = NULL;
 
-	avcodec_get_context_defaults3(&c, NULL);
+	c = avcodec_alloc_context3(NULL);
 
 	BLI_strncpy(name_, str, sizeof(name_));
 
@@ -1491,16 +1581,18 @@ int BKE_ffmpeg_property_add_string(RenderData *rd, const char *type, const char 
 		while (*param == ' ') param++;
 	}
 
-	o = av_opt_find(&c, name, NULL, 0, AV_OPT_SEARCH_CHILDREN | AV_OPT_SEARCH_FAKE_OBJ);
+	o = av_opt_find(c, name, NULL, 0, AV_OPT_SEARCH_CHILDREN | AV_OPT_SEARCH_FAKE_OBJ);
 	if (!o) {
 		PRINT("Ignoring unknown expert option %s\n", str);
+		avcodec_free_context(&c);
 		return 0;
 	}
 	if (param && o->type == AV_OPT_TYPE_CONST) {
+		avcodec_free_context(&c);
 		return 0;
 	}
 	if (param && o->type != AV_OPT_TYPE_CONST && o->unit) {
-		p = av_opt_find(&c, param, o->unit, 0, AV_OPT_SEARCH_CHILDREN | AV_OPT_SEARCH_FAKE_OBJ);
+		p = av_opt_find(c, param, o->unit, 0, AV_OPT_SEARCH_CHILDREN | AV_OPT_SEARCH_FAKE_OBJ);
 		if (p) {
 			prop = BKE_ffmpeg_property_add(rd, (char *) type, p, o);
 		}
@@ -1512,6 +1604,7 @@ int BKE_ffmpeg_property_add_string(RenderData *rd, const char *type, const char 
 		prop = BKE_ffmpeg_property_add(rd, (char *) type, o, NULL);
 	}
 
+	avcodec_free_context(&c);
 
 	if (!prop) {
 		return 0;
