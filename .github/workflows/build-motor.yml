@@ -152,24 +152,15 @@ jobs:
             '--config-option', 'servers:global:http-bulk-updates=yes'
           )
 
-          # --- Detect which directories actually exist on the SVN server ---
-          Write-Host "Fetching directory listing from SVN root..."
-          $svnList = & svn list @svnCfg $svnUrl 2>&1
-          if ($LASTEXITCODE -ne 0) {
-            Write-Error "Cannot list SVN root: $svnList"
-            exit 1
-          }
-          $availableDirs = $svnList -split "`n" | ForEach-Object { $_.TrimEnd('/').Trim() } | Where-Object { $_ -ne '' }
-          Write-Host "Available directories: $($availableDirs -join ', ')"
-
-          # Which of these are "large" (slow to download)
+          # Verified directory list from the SVN server (excluding files like dir.txt/dir.srt)
+          $allDirs = @("Fribidi","MaterialX","OpenImageIO","alembic","blosc","boost","brotli","dpcpp","embree","epoxy","ffmpeg","fftw3","freetype","gmp","harfbuzz","haru","iconv","imath","jpeg","level-zero","llvm","openal","opencollada","opencolorio","openexr","opengl","openimagedenoise","openjpeg","openpgl","opensubdiv","openvdb","osl","package","png","potrace","pthreads","pugixml","pystring","python","sdl","shaderc","sndfile","tbb","tiff","usd","vulkan","webp","wintab","xml2","xr_openxr_sdk","zlib","zstd")
           $largeDirs = @("boost","python")
 
           function Invoke-SvnCheckout {
             param(
               [string]$dir,
-              [int]$maxAttempts = 30,
-              [int]$baseDelay = 30
+              [int]$maxAttempts = 10,
+              [int]$baseDelay = 10
             )
             $target = "$libDir\$dir"
             $attempts = $maxAttempts
@@ -177,7 +168,6 @@ jobs:
             $url = "$svnUrl/$dir"
 
             do {
-              # Clean stale directory from previous attempt
               if (Test-Path $target) {
                 Remove-Item -Recurse -Force $target -ErrorAction SilentlyContinue
               }
@@ -188,7 +178,6 @@ jobs:
               $attempts--
 
               if ($exitCode -eq 0) {
-                # Verify the target has content before declaring success
                 if (Test-Path $target) {
                   $itemCount = (Get-ChildItem -Path $target -Recurse -File -ErrorAction SilentlyContinue | Measure-Object).Count
                   Write-Host "SVN checkout $dir succeeded -- $itemCount files"
@@ -198,17 +187,15 @@ jobs:
                 $exitCode = 1
               }
 
-              # Extract SVN error code if present
               $errorMsg = $result -join ' '
               $svnErrorMatch = [regex]::Match($errorMsg, 'svn:\s+E(\d{6})')
 
               if ($svnErrorMatch.Success) {
                 $svnCode = $svnErrorMatch.Groups[1].Value
                 Write-Warning "SVN $dir error: E$svnCode"
-
-                # Permanent errors: URL doesn't exist, forbidden, etc. — no retry
+                # Permanent errors: URL doesn't exist, forbidden, etc.
                 if ($svnCode -in @('170000', '175002', '155010')) {
-                  Write-Warning "SVN ${dir}: permanent error E${svnCode} — skipping this directory"
+                  Write-Warning "SVN ${dir}: permanent error E${svnCode} -- skipping"
                   return $false
                 }
               } else {
@@ -228,51 +215,41 @@ jobs:
           }
 
           $failed = @()
-          $skipped = @()
-          foreach ($d in $availableDirs) {
+          foreach ($d in $allDirs) {
             $isLarge = $d -in $largeDirs
             $maxRetries = if ($isLarge) { 30 } else { 10 }
             $baseDelay = if ($isLarge) { 60 } else { 10 }
 
             Write-Host "===== Checking out $d ($(if ($isLarge) {'large'} else {'small'}) directory) ====="
-            $success = Invoke-SvnCheckout $d $maxRetries $baseDelay
-
-            if (-not $success) {
-              # Check if it was a permanent skip (E170000 etc.)
-              if (Test-Path "$libDir\$d") { Remove-Item -Recurse -Force "$libDir\$d" -ErrorAction SilentlyContinue }
-              # Only count as "failed" if it's a dir we actually need
-              $criticalDirs = @("boost","python","ffmpeg","openjpeg","freetype","sdl","openal","tbb","jpeg","png","tiff","alembic","opencolorio","openexr","openimageio","opensubdiv","openvdb","webp","zlib","pthreads","fftw3","imath")
-              if ($d -in $criticalDirs) {
-                $failed += $d
-                Write-Error "Failed critical directory: $d"
-              } else {
-                $skipped += $d
-                Write-Warning "Skipping directory $d (not in critical list)"
-              }
+            if (-not (Invoke-SvnCheckout $d $maxRetries $baseDelay)) {
+              $failed += $d
+              Write-Error "SVN checkout failed for: $d"
             }
-
             Start-Sleep -Seconds $(if ($isLarge) {10} else {3})
           }
 
-          if ($skipped.Count -gt 0) {
-            Write-Host "Skipped (non-critical) directories: $($skipped -join ', ')"
-          }
-
           if ($failed.Count -gt 0) {
-            Write-Error "SVN failed for critical directories: $($failed -join ', ')"
+            Write-Error "SVN failed for directories: $($failed -join ', ')"
             exit 1
           }
 
-          # Verify critical files exist
+          # Verify critical files exist — use wildcard/glob for versioned paths
           $testFiles = @(
             "$libDir\boost\include\boost\version.hpp",
             "$libDir\ffmpeg\include\libavformat\avformat.h",
-            "$libDir\openjpeg\include\openjpeg-2.4\openjpeg.h",
             "$libDir\python\311\include\Python.h"
           )
+          # openjpeg version dir varies; search for it
+          $openjpegTest = Get-ChildItem -Path "$libDir\openjpeg\include" -Recurse -Filter "openjpeg.h" -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $openjpegTest) {
+            Write-Error "Missing openjpeg.h -- SVN checkout appears incomplete"
+            exit 1
+          }
+          Write-Host "Found openjpeg.h at $($openjpegTest.FullName)"
+
           foreach ($f in $testFiles) {
             if (-not (Test-Path $f)) {
-              Write-Error "Missing critical file: $f — SVN checkout appears incomplete"
+              Write-Error "Missing critical file: $f -- SVN checkout appears incomplete"
               exit 1
             }
           }
