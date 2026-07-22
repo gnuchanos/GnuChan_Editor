@@ -60,6 +60,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE \
             -DCMAKE_C_COMPILER_LAUNCHER=ccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+            -DPYTHON_VERSION=3.10 \
             -DWITH_BLENDER=ON \
             -DWITH_PLAYER=ON \
             -DWITH_GAMEENGINE=ON \
@@ -71,7 +72,7 @@ jobs:
             -DWITH_SDL=ON \
             -DWITH_OPENAL=ON \
             -DWITH_JACK=OFF \
-            -DWITH_INTERNATIONAL=ON \
+            -DWITH_INTERNATIONAL=OFF \
             -DWITH_PYTHON_INSTALL=OFF \
             -DWITH_FFTW3=ON \
             -DWITH_MOD_OCEANSIM=ON \
@@ -97,5 +98,94 @@ jobs:
         with:
           name: gnuchan-editor-linux
           path: $BUILD_DIR/bin/
+          retention-days: 7
+          if-no-files-found: ignore
+
+  build-windows:
+    name: Windows
+    runs-on: windows-2022
+    defaults:
+      run:
+        working-directory: src
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          submodules: 'false'
+
+      - uses: microsoft/setup-msbuild@v2
+
+      - uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ runner.os }}-gnuchan-win-${{ github.sha }}
+          restore-keys: ${{ runner.os }}-gnuchan-win-
+          max-size: 2G
+
+      - name: Cache precompiled libs
+        id: cache-libs
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/../lib/win64_vc15
+          key: win64-vc15-libs-v2
+          restore-keys: win64-vc15-libs-
+
+      - name: Install SVN
+        if: steps.cache-libs.outputs.cache-hit != 'true'
+        run: choco install svn -y --no-progress
+
+      - name: Download precompiled libs (win64_vc15)
+        if: steps.cache-libs.outputs.cache-hit != 'true'
+        shell: cmd
+        run: |
+          mkdir "%GITHUB_WORKSPACE%\..\lib"
+          cd "%GITHUB_WORKSPACE%\..\lib"
+          svn checkout --depth=empty https://svn.blender.org/svnroot/bf-blender/trunk/lib/win64_vc15 win64_vc15
+          cd win64_vc15
+          for %%d in (alembic boost fftw3 freetype imath jack jpeg openal opencollada opencolorio openexr openimageio openjpeg opensubdiv openvdb osl png pthreads python sdl tbb tiff webp zlib) do (
+            svn update --set-depth=infinity %%d
+          )
+
+      - name: Configure
+        shell: cmd
+        run: |
+          mkdir "%BUILD_DIR%"
+          cmake -S "%GITHUB_WORKSPACE%\src" -B "%BUILD_DIR%" ^
+            -G "Visual Studio 17 2022" -A x64 ^
+            -DCMAKE_BUILD_TYPE=Release ^
+            -DWITH_BLENDER=ON ^
+            -DWITH_PLAYER=ON ^
+            -DWITH_GAMEENGINE=ON ^
+            -DWITH_CYCLES=OFF ^
+            -DWITH_CYCLES_OSL=OFF ^
+            -DWITH_OPENCOLORIO=ON ^
+            -DWITH_OPENCOLLADA=OFF ^
+            -DWITH_CODEC_FFMPEG=ON ^
+            -DWITH_SDL=ON ^
+            -DWITH_OPENAL=ON ^
+            -DWITH_INTERNATIONAL=ON ^
+            -DWITH_PYTHON_INSTALL=OFF ^
+            -DWITH_RAYOPTIMIZATION=ON ^
+            -DWITH_OPENMP=ON ^
+            -DWITH_BUILDINFO=OFF ^
+            -DWITH_BULLET=ON ^
+            -DWITH_FREESTYLE=ON ^
+            -DWITH_IMAGE_OPENEXR=ON ^
+            -DWITH_IMAGE_TIFF=ON ^
+            -DWITH_LIBMV=ON ^
+            -DWITH_AUDASPACE=ON ^
+            -DWITH_TBB=ON
+        env:
+          BUILD_DIR: ${{ github.workspace }}\build
+
+      - name: Build
+        shell: cmd
+        run: cmake --build "%BUILD_DIR%" --config Release -j %NUMBER_OF_PROCESSORS%
+        env:
+          BUILD_DIR: ${{ github.workspace }}\build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gnuchan-editor-windows
+          path: ${{ github.workspace }}\build\bin\Release\
           retention-days: 7
           if-no-files-found: ignore
