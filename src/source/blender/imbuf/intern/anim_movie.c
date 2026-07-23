@@ -508,7 +508,7 @@ static int startffmpeg(struct anim *anim)
 	videoStream = -1;
 
 	for (i = 0; i < pFormatCtx->nb_streams; i++) {
-		AVMediaType codec_type;
+		int codec_type;
 #ifdef FFMPEG5
 		codec_type = pFormatCtx->streams[i]->codecpar->codec_type;
 #else

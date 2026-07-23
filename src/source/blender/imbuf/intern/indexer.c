@@ -764,7 +764,7 @@ static IndexBuildContext *index_ffmpeg_create_context(struct anim *anim, IMB_Tim
 	/* Find the video stream */
 	context->videoStream = -1;
 	for (i = 0; i < context->iFormatCtx->nb_streams; i++) {
-		AVMediaType codec_type;
+		int codec_type;
 #ifdef FFMPEG5
 		codec_type = context->iFormatCtx->streams[i]->codecpar->codec_type;
 #else
@@ -813,6 +813,7 @@ static IndexBuildContext *index_ffmpeg_create_context(struct anim *anim, IMB_Tim
 	}
 
 	for (i = 0; i < num_proxy_sizes; i++) {
+#ifndef FFMPEG5
 		if (proxy_sizes_in_use & proxy_sizes[i]) {
 			context->proxy_ctx[i] = alloc_proxy_output_ffmpeg(
 			        anim, context->iStream, proxy_sizes[i],
@@ -824,6 +825,9 @@ static IndexBuildContext *index_ffmpeg_create_context(struct anim *anim, IMB_Tim
 				proxy_sizes_in_use &= ~proxy_sizes[i];
 			}
 		}
+#else
+		(void)proxy_sizes_in_use;
+#endif
 	}
 
 	for (i = 0; i < num_indexers; i++) {
@@ -853,9 +857,14 @@ static void index_rebuild_ffmpeg_finish(FFmpegIndexBuilderContext *context, int 
 	}
 
 	for (i = 0; i < context->num_proxy_sizes; i++) {
+#ifndef FFMPEG5
 		if (context->proxy_sizes_in_use & proxy_sizes[i]) {
 			free_proxy_output_ffmpeg(context->proxy_ctx[i], stop);
 		}
+#else
+		(void)proxy_sizes;
+		(void)stop;
+#endif
 	}
 
 	avcodec_close(context->iCodecCtx);
@@ -874,9 +883,13 @@ static void index_rebuild_ffmpeg_proc_decoded_frame(
 	unsigned long long s_dts = context->seek_pos_dts;
 	unsigned long long pts = av_get_pts_from_frame(context->iFormatCtx, in_frame);
 
+#ifndef FFMPEG5
 	for (i = 0; i < context->num_proxy_sizes; i++) {
 		add_to_proxy_output_ffmpeg(context->proxy_ctx[i], in_frame);
 	}
+#else
+	(void)in_frame;
+#endif
 
 	if (!context->start_pts_set) {
 		context->start_pts = pts;

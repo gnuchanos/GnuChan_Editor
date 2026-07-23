@@ -20,6 +20,7 @@
 #include <iostream>
 #include <sstream>
 #include <string.h>
+#include <memory>
 
 #ifdef _MSC_VER
 #  pragma warning(push)
@@ -523,7 +524,7 @@ void OCIOImpl::processorApply_predivide(OCIO_ConstProcessorRcPtr *processor, OCI
 		int channels = img->getNumChannels();
 
 		if (channels == 4) {
-			float *pixels = img->getData();
+			float *pixels = (float *)img->getData();
 
 			int width = img->getWidth();
 			int height = img->getHeight();
@@ -710,8 +711,11 @@ void OCIOImpl::matrixTransformSetValue(OCIO_MatrixTransformRcPtr *mt, const floa
 {
 #if OCIO_VERSION_HEX >= 0x02030000
 	/* OCIO 2.3+ removed MatrixTransform::setValue(). Use MatrixTransform::setMatrix() and setOffset() instead. */
-	(*(MatrixTransformRcPtr *) mt)->setMatrix(m44);
-	(*(MatrixTransformRcPtr *) mt)->setOffset(offset4);
+	double m44d[16], offd[4];
+	for (int i = 0; i < 16; i++) m44d[i] = (double)m44[i];
+	for (int i = 0; i < 4; i++) offd[i] = (double)offset4[i];
+	(*(MatrixTransformRcPtr *) mt)->setMatrix(m44d);
+	(*(MatrixTransformRcPtr *) mt)->setOffset(offd);
 #else
 	(*(MatrixTransformRcPtr *) mt)->setValue(m44, offset4);
 #endif
